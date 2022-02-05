@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"
+    tools:context=".DownloadPortfolioActivity">
+
+    <Button
+        android:id="@+id/buttonGetPortfolioData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/getPortfolioData"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutEnterSteamID" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayoutEnterSteamID"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/enterSteamID" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/textViewSteamIDExample1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/steamIDExample1"
+        app:layout_constraintBottom_toTopOf="@+id/textInputLayoutEnterSteamID"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.526" />
+
+    <TextView
+        android:id="@+id/textViewSteamIDExample2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/steamIDExample2"
+        app:layout_constraintStart_toStartOf="@+id/textViewSteamIDExample1"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSteamIDExample1" />
+
+    <TextView
+        android:id="@+id/textViewSteamIDExample3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/steamIDExample3"
+        app:layout_constraintStart_toStartOf="@+id/textViewSteamIDExample2"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSteamIDExample2" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

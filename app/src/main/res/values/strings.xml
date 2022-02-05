@@ -1,3 +1,18 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">SteamMarketApp</string>
+    <!-- Choose Portfolio-->
+    <string name="getPortfolioData">Get Portfolio Data</string>
+    <string name="enterSteamID">Enter your SteamID here…</string>
+    <string name="steamIDExample1">1. Open your browser and go to your steam profile page.</string>
+    <string name="steamIDExample2">2. In the search bar you will find something resembling this: https://steamcommunity.com/id/****/</string>
+    <string name="steamIDExample3">3. Copy and paste the part where the **** are in the example provided.</string>
+    <!-- Item List -->
+    <string name="refresh">Refresh</string>
+    <!-- Item CardView -->
+    <string name="loading">Loading</string>
+    <string name="item_name">Name:</string>
+    <string name="item_volume">Volume of last 24h:</string>
+    <string name="item_price">Price:</string>
+    <string name="item_price_median">Price Median:</string>
+    <string name="currency">€</string>
 </resources>
