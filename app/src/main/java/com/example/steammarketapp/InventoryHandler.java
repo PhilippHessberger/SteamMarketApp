@@ -19,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -35,6 +36,11 @@ public class InventoryHandler {
     }
 
     public void downloadInventoryForSteamID(String steamID) {
+
+        // TODO: Evaluate if this is really the best and efficient course of action:
+        // TODO: Check if there is already a file for this steamID
+        // TODO: If there is one, open it, and add another entry
+        // TODO: If there is none, create a new one and make the first entry
         String inventoryURL = "https://steamcommunity.com/id/" + steamID + "/inventory/json/730/2";
         RequestQueue queue = Volley.newRequestQueue(context);
         ArrayList<ItemModel> itemModelArrayList = new ArrayList<>();
@@ -105,10 +111,8 @@ public class InventoryHandler {
                                                 // Writing the ItemList into a .json-File:
                                                 JSONObject newInventoryHistoryEntry = new JSONObject();
                                                 try {
+                                                    // TODO: check if the LocalDateTime.now() format should be changed:
                                                     newInventoryHistoryEntry.put("date", String.valueOf(LocalDateTime.now()));
-                                                    JSONObject test = new JSONObject();
-                                                    test.put("test", "testestestest");
-                                                    newInventoryHistoryEntry.put
                                                 } catch (JSONException e) {
                                                     e.printStackTrace();
                                                 }

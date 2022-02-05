@@ -11,6 +11,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -44,7 +47,15 @@ public class SelectPortfolioActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createAFile("test");
+                // TODO: clean up testing code:
+                //createAFile("test");
+                try {
+                    JSONObject test2 = new JSONObject().put("id", 1);
+                    JSONObject test = new JSONObject().put("test", 1234).put("test2", 12345678).put(test2.getString("id"), test2);
+                    Toast.makeText(SelectPortfolioActivity.this, "JSONObject: " + test.toString(4), Toast.LENGTH_SHORT).show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

@@ -31,8 +31,8 @@ public class ItemListActivity extends AppCompatActivity {
             }
         });
 
-        ArrayList<ItemModel> itemModelArrayList = inventoryHandler.getInventoryData();
-
+        // TODO: Get Data from InventoryHandler and display it properly
+        /*
         RecyclerView itemlistRecycleViewItemList = findViewById(R.id.itemlistRecycleViewItemList);
         ItemAdapter itemAdapter = new ItemAdapter(ItemListActivity.this, itemModelArrayList);
         itemlistRecycleViewItemList.setAdapter(itemAdapter);
@@ -40,5 +40,6 @@ public class ItemListActivity extends AppCompatActivity {
         eventLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         itemlistRecycleViewItemList.setLayoutManager(eventLayoutManager);
         itemlistRecycleViewItemList.setItemAnimator(new DefaultItemAnimator());
+         */
     }
 }
