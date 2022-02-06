@@ -3,12 +3,12 @@ package com.example.steammarketapp;
 public class ItemModel {
 
     private final int classid;
-    private final int amount;
+    private final int id;
     private DescriptionModel descriptionModel;
 
-    public ItemModel(int classid, int amount) {
+    public ItemModel(int classid, int id) {
         this.classid = classid;
-        this.amount = amount;
+        this.id = id;
     }
 
     public void setDescriptionModel(DescriptionModel descriptionModel) {
@@ -23,7 +23,7 @@ public class ItemModel {
         return classid;
     }
 
-    public int getAmount() {
-        return amount;
+    public int getId() {
+        return id;
     }
 }

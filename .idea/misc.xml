@@ -3,13 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Repositories/SteamMarketApp/app/src/main/res/layout/activity_main.xml" value="0.5104166666666666" />
-        <entry key="..\:/Repositories/SteamMarketApp/app/src/main/res/layout/choosePortfolio_activity.xml" value="0.575" />
-        <entry key="..\:/Repositories/SteamMarketApp/app/src/main/res/layout/choose_portfolio_activity.xml" value="0.575" />
-        <entry key="..\:/Repositories/SteamMarketApp/app/src/main/res/layout/inventory_cardview.xml" value="0.575" />
-        <entry key="..\:/Repositories/SteamMarketApp/app/src/main/res/layout/item_cardview.xml" value="0.4546875" />
-        <entry key="..\:/Repositories/SteamMarketApp/app/src/main/res/layout/itemlist.xml" value="0.4546875" />
-        <entry key="..\:/Repositories/SteamMarketApp/app/src/main/res/layout/selectportfolio_activity.xml" value="0.575" />
+        <entry key="..\:/Users/phil/Repositories/SteamMarketAppRepository/SteamMarketApp/app/src/main/res/layout/inventory_cardview.xml" value="0.4" />
+        <entry key="..\:/Users/phil/Repositories/SteamMarketAppRepository/SteamMarketApp/app/src/main/res/layout/inventory_details.xml" value="0.259375" />
+        <entry key="..\:/Users/phil/Repositories/SteamMarketAppRepository/SteamMarketApp/app/src/main/res/layout/item_cardview.xml" value="1.2" />
+        <entry key="..\:/Users/phil/Repositories/SteamMarketAppRepository/SteamMarketApp/app/src/main/res/layout/selectportfolio_activity.xml" value="0.259375" />
       </map>
     </option>
   </component>

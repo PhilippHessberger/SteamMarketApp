@@ -2,20 +2,20 @@ package com.example.steammarketapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -28,11 +28,7 @@ public class SelectPortfolioActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.selectportfolio_activity);
 
-        ListView listViewDownloadedPortfolios = (ListView) findViewById(R.id.listViewDownloadedPortfolios);
-        TextView textViewInventoryCard = (TextView) findViewById(R.id.textViewInventoryCard);
-
-        ArrayAdapter<String> fileNamesAdapter = new ArrayAdapter<String>(this, R.layout.inventory_cardview, R.id.textViewInventoryCard, getFileArrayNames());
-        listViewDownloadedPortfolios.setAdapter(fileNamesAdapter);
+        loadInventories();
 
         Button buttonGoToDownloadPortfolioActivity = (Button) findViewById(R.id.buttonGoToDownloadPortfolioActivity);
         buttonGoToDownloadPortfolioActivity.setOnClickListener(new View.OnClickListener() {
@@ -48,47 +44,43 @@ public class SelectPortfolioActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO: clean up testing code:
-                //createAFile("test");
-                try {
-                    JSONObject test2 = new JSONObject().put("id", 1);
-                    JSONObject test = new JSONObject().put("test", 1234).put("test2", 12345678).put(test2.getString("id"), test2);
-                    Toast.makeText(SelectPortfolioActivity.this, "JSONObject: " + test.toString(4), Toast.LENGTH_SHORT).show();
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                File[] files = SelectPortfolioActivity.this.getFilesDir().listFiles();
+                if (files.length != 0) {
+                    for (File file : files) {
+                        Log.d("Deleted: ", file.getAbsolutePath());
+                        file.delete();
+                    }
                 }
             }
         });
+
     }
 
-    private String[] getFileArrayNames() throws NullPointerException {
+    private void loadInventories() {
+        RecyclerView recyclerViewDownloadedPortfolios = findViewById(R.id.recyclerViewDownloadedPortfolios);
+        InventoryAdapter inventoryAdapter = new InventoryAdapter(SelectPortfolioActivity.this, getInventroyModels());
+        recyclerViewDownloadedPortfolios.setAdapter(inventoryAdapter);
+        LinearLayoutManager offerLayoutManager = new LinearLayoutManager(SelectPortfolioActivity.this);
+        offerLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerViewDownloadedPortfolios.setLayoutManager(offerLayoutManager);
+        recyclerViewDownloadedPortfolios.setItemAnimator(new DefaultItemAnimator());
+    }
+
+    private ArrayList<InventoryModel> getInventroyModels() {
         File[] files = this.getFilesDir().listFiles();
-        String[] fileNames = new String[0];
-        if (files != null) {
-            fileNames = new String[files.length];
-        }
-        // TODO: Error-Handling maybe...
+        ArrayList<InventoryModel> fileNames = new ArrayList<>();
         if (files.length != 0) {
-            for (int i = 0; i < files.length; i++) {
-                fileNames[i] = files[i].getName();
+            for (File file : files) {
+                fileNames.add(new InventoryModel(file.getName(), file.getName()));
             }
         }
 
         return fileNames;
     }
 
-    // TODO: remove this later
-    // for creating a few test files to check if the listview arrayadapter works:
-    private void createAFile(String filename) {
-        try {
-            FileOutputStream fileOutputStream = openFileOutput(filename + ".json", MODE_PRIVATE);
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
-
-            outputStreamWriter.write("test");
-
-            outputStreamWriter.flush();
-            outputStreamWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadInventories();
     }
 }

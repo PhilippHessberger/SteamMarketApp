@@ -2,16 +2,26 @@ package com.example.steammarketapp;
 
 public class DescriptionModel {
 
-    private int classid, volume;
+    private int classid, volume = 0;
     private String itemName;
     private boolean marketable, tradable;
-    private float price, medianPrice;
+    private float lowestPrice, medianPrice;
 
     public DescriptionModel(int classid, String itemName, int marketable, int tradable) {
         this.classid = classid;
         this.itemName = itemName;
         this.marketable = (marketable == 1);
         this.tradable = (tradable == 1);
+    }
+
+    public DescriptionModel(int classid, String itemName, int marketable, int tradable, float lowestPrice, float medianPrice, int volume) {
+        this.classid = classid;
+        this.itemName = itemName;
+        this.marketable = (marketable == 1);
+        this.tradable = (tradable == 1);
+        this.lowestPrice = lowestPrice;
+        this.medianPrice = medianPrice;
+        this.volume = volume;
     }
 
     public int getClassid() {
@@ -30,12 +40,12 @@ public class DescriptionModel {
         return tradable;
     }
 
-    public float getPrice() {
-        return price;
+    public float getLowestPrice() {
+        return lowestPrice;
     }
 
-    public void setPrice(float price) {
-        this.price = price;
+    public void setLowestPrice(float lowestPrice) {
+        this.lowestPrice = lowestPrice;
     }
 
     public float getMedianPrice() {

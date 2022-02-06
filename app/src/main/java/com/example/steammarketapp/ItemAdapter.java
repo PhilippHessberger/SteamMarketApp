@@ -18,6 +18,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     private Context context;
 
     public ItemAdapter(Context context, ArrayList<ItemModel> itemModelArrayList) {
+        layoutInflater = LayoutInflater.from(context);
         this.itemModelArrayList = itemModelArrayList;
         this.context = context;
     }
@@ -26,8 +27,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = layoutInflater.inflate(R.layout.item_cardview, parent, false);
-        ItemViewHolder itemViewHolder = new ItemViewHolder(view);
-        return itemViewHolder;
+        return new ItemViewHolder(view);
     }
 
     @Override
@@ -58,9 +58,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
         public void setData(ItemModel currentObject, int position) {
             this.name.setText(currentObject.getDescriptionModel().getItemName());
-            this.price.setText(String.valueOf(currentObject.getDescriptionModel().getPrice()));
+            this.price.setText(String.valueOf(currentObject.getDescriptionModel().getLowestPrice()));
             this.priceMedian.setText(String.valueOf(currentObject.getDescriptionModel().getMedianPrice()));
-            this.volume.setText(currentObject.getDescriptionModel().getVolume());
+            this.volume.setText(String.valueOf(currentObject.getDescriptionModel().getVolume()));
 
             this.position = position;
             this.currentObject = currentObject;

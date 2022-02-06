@@ -25,7 +25,8 @@ public class DownloadPortfolioActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (textInputLayoutEnterSteamID.getEditText().getText() != null) {
                     // TODO: Now the data needs to be downloaded
-
+                    InventoryHandler inventoryHandler = new InventoryHandler(DownloadPortfolioActivity.this);
+                    inventoryHandler.downloadInventoryForSteamID(String.valueOf(textInputLayoutEnterSteamID.getEditText().getText()));
                     finish();
                 } else {
                     Toast.makeText(DownloadPortfolioActivity.this, "Please enter a SteamID", Toast.LENGTH_SHORT).show();
