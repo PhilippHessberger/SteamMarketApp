@@ -32,87 +32,89 @@ public class InventoryHandler {
         this.context = context;
     }
 
-    public ArrayList<ItemModel> extractInventoryHistoryFromJsonFile(String filename) {
+    public ArrayList<ItemModel> extractLastInventoryHistoryEntryFromJsonFile(String filename) {
+        Log.d("DEBUG: ", "Starting extractLastInventoryHistoryEntryFromJsonFile now");
+        // TODO: Technically it is the last entry we extract... Fix it.
         // Opening the local inventory history file:
         try {
             File[] files = context.getFilesDir().listFiles();
+            // Search for the correct file:
             for (File file : files) {
                 if (file.getName().equals(filename)) {
                     File myFile = file;
 
                     FileInputStream fileInputStream = context.openFileInput(file.getName());
+                    int size = fileInputStream.available();
+                    char[] inputBuffer = new char[size];
                     InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-
-                    char[] inputBuffer = new char[(int) myFile.length()];
-
                     inputStreamReader.read(inputBuffer);
-
                     String fileToString = new String(inputBuffer);
 
                     // Extracting data from the local file:
-
-                    // Searching for different snapshots of the inventory:
                     JSONObject inventoryHistory = new JSONObject(fileToString);
                     Iterator<String> inventoryEntries = inventoryHistory.keys();
-                    // TODO: Make it return the history and not the current snapshot of the inventory
-                    while (inventoryEntries.hasNext()) {
-                        ArrayList<ItemModel> itemModelArrayList = new ArrayList<>();
-                        ArrayList<DescriptionModel> descriptionModelArrayList = new ArrayList<>();
-                        JSONObject inventoryEntry = inventoryHistory.getJSONObject((String) inventoryEntries.next());
+                    JSONObject inventoryEntry = inventoryHistory.getJSONObject((String) inventoryEntries.next());
 
-                        //  TODO: remove after testing:
-                        Log.d("Reading local json file:", inventoryEntry.toString());
+                    ArrayList<ItemModel> itemModelArrayList = new ArrayList<>();
+                    ArrayList<DescriptionModel> descriptionModelArrayList = new ArrayList<>();
 
-                        // Items:
-                        JSONObject inventory = inventoryEntry.getJSONObject("rgInventory");
-                        Iterator<String> inventoryKeys = inventory.keys();
-                        //  TODO: remove after testing:
-                        int counter1 = 0;
-                        while (inventoryKeys.hasNext()) {
-                            //  TODO: remove after testing:
-                            counter1++;
-                            JSONObject item = inventory.getJSONObject((String) inventoryKeys.next());
-                            itemModelArrayList.add(new ItemModel(
-                                    item.getInt("classid"),
-                                    item.getInt("id")
-                            ));
-                        }
-                        //  TODO: remove after testing:
-                        Log.d("Counter Items", String.valueOf(counter1));
 
-                        // Descriptions:
-                        JSONObject descriptions = inventoryEntry.getJSONObject("rgDescriptions");
-                        Iterator<String> descriptionKeys = descriptions.keys();
-                        //  TODO: remove after testing:
-                        int counter2 = 0;
-                        while (descriptionKeys.hasNext()) {
-                            //  TODO: remove after testing:
-                            counter2++;
-                            JSONObject description = descriptions.getJSONObject((String) descriptionKeys.next());
-                            descriptionModelArrayList.add(new DescriptionModel(
-                                    description.getInt("classid"),
-                                    description.getString("market_hash_name"),
-                                    description.getInt("marketable"),
-                                    description.getInt("tradable"),
-                                    Float.parseFloat(String.valueOf(description.getLong("lowest_price"))),
-                                    Float.parseFloat(String.valueOf(description.getLong("median_price"))),
-                                    description.getInt("volume")
-                            ));
-                        }
-                        //  TODO: remove after testing:
-                        Log.d("Counter Descriptions", String.valueOf(counter2));
+                    //  TODO: remove after testing:
+                    Log.d("First entry in local file: ", inventoryEntry.toString(4));
 
-                        // Matching items with their description:
-                        for (DescriptionModel descriptionModel : descriptionModelArrayList) {
-                            for (ItemModel itemModel : itemModelArrayList) {
-                                if (descriptionModel.getClassid() == itemModel.getClassid()) {
-                                    itemModel.setDescriptionModel(descriptionModel);
-                                }
+                    // Going through all items:
+                    JSONObject inventory = inventoryEntry.getJSONObject("rgInventory");
+                    Iterator<String> inventoryKeys = inventory.keys();
+
+                    //  TODO: remove after testing:
+                    int counter1 = 0;
+                    while (inventoryKeys.hasNext()) {
+                        //  TODO: remove after testing:
+                        counter1++;
+                        JSONObject item = inventory.getJSONObject((String) inventoryKeys.next());
+                        itemModelArrayList.add(new ItemModel(
+                                item.getInt("classid"),
+                                item.getInt("id")
+                        ));
+                    }
+
+                    //  TODO: remove after testing:
+                    Log.d("Counter Items", String.valueOf(counter1));
+
+                    // Going through all descriptions:
+                    JSONObject descriptions = inventoryEntry.getJSONObject("rgDescriptions");
+                    Iterator<String> descriptionKeys = descriptions.keys();
+
+                    //  TODO: remove after testing:
+                    int counter2 = 0;
+                    while (descriptionKeys.hasNext()) {
+                        //  TODO: remove after testing:
+                        counter2++;
+                        JSONObject description = descriptions.getJSONObject((String) descriptionKeys.next());
+                        descriptionModelArrayList.add(new DescriptionModel(
+                                description.getInt("classid"),
+                                description.getString("market_hash_name"),
+                                description.getInt("marketable"),
+                                description.getInt("tradable"),
+                                Float.parseFloat(String.valueOf(description.getLong("lowest_price"))),
+                                Float.parseFloat(String.valueOf(description.getLong("median_price"))),
+                                description.getInt("volume")
+                        ));
+                    }
+
+                    //  TODO: remove after testing:
+                    Log.d("Counter Descriptions", String.valueOf(counter2));
+
+                    // Matching items with their description:
+                    for (DescriptionModel descriptionModel : descriptionModelArrayList) {
+                        for (ItemModel itemModel : itemModelArrayList) {
+                            if (descriptionModel.getClassid() == itemModel.getClassid()) {
+                                itemModel.setDescriptionModel(descriptionModel);
                             }
                         }
-
-                        return itemModelArrayList;
                     }
+
+                    return itemModelArrayList;
                 }
             }
         } catch (IOException | JSONException e) {
@@ -123,6 +125,7 @@ public class InventoryHandler {
     }
 
     public void downloadInventoryForSteamID(String steamID) {
+        Log.d("DEBUG: ", "Starting downloadInventoryForSteamID now");
         // This function will create a new file with the interesting contents of a steam inventory.
         // TODO: Evaluate if this is really the best and efficient course of action:
         // TODO: Check if there is already a file for this steamID
@@ -139,6 +142,8 @@ public class InventoryHandler {
     }
 
     private String getSteamInventoryFormURL(String steamID) {
+        // TODO: Everything in here works, check extractDataFromJson
+        Log.d("DEBUG: ", "Starting getSteamInventoryFormURL now");
         String inventoryURL = "https://steamcommunity.com/" + steamID + "/inventory/json/730/2";
         RequestQueue queue = Volley.newRequestQueue(context);
 
@@ -149,26 +154,21 @@ public class InventoryHandler {
                         // Call method to extract data from json:
                         extractDataFromJson(response, queue, steamID);
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                // TODO: Remove stuff added for testing
-                Log.d("While Fetching Inv.", error.toString());
-                error.printStackTrace();
-            }
-        });
-
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
+        );
         queue.add(jsonObjectRequest);
-
-        ArrayList<ItemModel> itemModelArrayList = new ArrayList<>();
-        ArrayList<DescriptionModel> descriptionModelArrayList = new ArrayList<>();
-
-        // TODO: Still only one price request because I accidentally spammed the valve servers... Remove restrictions when further testing is needed.
 
         return null;
     }
 
     private void extractDataFromJson(JSONObject response, RequestQueue queue, String steamID) {
+        Log.d("DEBUG: ", "Starting extractDataFromJson now");
         ArrayList<ItemModel> itemModelArrayList = new ArrayList<>();
         ArrayList<DescriptionModel> descriptionModelArrayList = new ArrayList<>();
 
@@ -183,6 +183,9 @@ public class InventoryHandler {
                         item.getInt("classid"),
                         item.getInt("id")
                 ));
+                Log.d("New Item:", "classid: " + String.valueOf(item.getInt("classid"))
+                        + " id: " + String.valueOf(item.getInt("id"))
+                );
             }
 
             // Descriptions:
@@ -196,21 +199,72 @@ public class InventoryHandler {
                         description.getInt("marketable"),
                         description.getInt("tradable")
                 ));
+                Log.d("New Description:", "classid: " + String.valueOf(description.getInt("classid"))
+                        + " market_hash_name: " + String.valueOf(description.getString("market_hash_name"))
+                        + " marketable: " + String.valueOf(description.getInt("marketable"))
+                        + " tradable: " + String.valueOf(description.getInt("marketable"))
+                );
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         // Fetching Prices for Descriptions and matching ItemModels with their DescriptionModels:
-        fetchPricesForDescriptions(queue, descriptionModelArrayList, itemModelArrayList, steamID);
+        fetchPricesForDescriptions(queue,
+                new VolleyCallback() {
+                    @Override
+                    public void onSuccess(JSONObject response, DescriptionModel descriptionModel) {
+                        try {
+                            descriptionModel.setLowestPrice(
+                                    Float.parseFloat(
+                                            response.getString("lowest_price")
+                                            .replace("€", "")
+                                            .replace(",", ".")
+                                            .replace("-", "0")
+                                    )
+                            );
+                            descriptionModel.setVolume(
+                                    Integer.parseInt(
+                                            response.getString  ("volume")
+                                            .replace(",", "")
+                                    )
+                            );
+                            descriptionModel.setMedianPrice(
+                                    Float.parseFloat(
+                                            response.getString("median_price")
+                                            .replace("€", "")
+                                            .replace(",", ".")
+                                            .replace("-", "0")
+                                    )
+                            );
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                descriptionModelArrayList,
+                itemModelArrayList,
+                steamID
+        );
+
+        for (DescriptionModel descriptionModel : descriptionModelArrayList) {
+            Log.d("des. : ", String.valueOf(descriptionModel.getLowestPrice()));
+        }
+
+        // Currently calling it here because we don't know how Callback really works
+        createJsonFromData(descriptionModelArrayList, itemModelArrayList, steamID);
     }
 
-    private void fetchPricesForDescriptions(RequestQueue queue, ArrayList<DescriptionModel> descriptionModelArrayList, ArrayList<ItemModel> itemModelArrayList, String steamID) {
+    private void fetchPricesForDescriptions(RequestQueue queue, VolleyCallback volleyCallback, ArrayList<DescriptionModel> descriptionModelArrayList, ArrayList<ItemModel> itemModelArrayList, String steamID) {
+        Log.d("DEBUG: ", "Starting fetchPricesForDescriptions now");
         String baseURL = "https://steamcommunity.com/market/priceoverview/?appid=730&currency=3&market_hash_name=";
-        int counter = 0;
+        int descriptionCounter = 0;
+        String output = "";
         for (DescriptionModel descriptionModel : descriptionModelArrayList) {
             if (descriptionModel.isMarketable()) {
-                Log.d("Counter ", String.valueOf(counter++));
+                // TODO: remove counter and URL debug messages:
+                Log.d("Counter ", String.valueOf(descriptionCounter++));
+                Log.d("Counter ", "URL of description: " + baseURL + descriptionModel.getItemName().replace(" ", "%20"));
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                         Request.Method.GET,
                         baseURL + descriptionModel.getItemName().replace(" ", "%20"),
@@ -218,32 +272,7 @@ public class InventoryHandler {
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
-                                try {
-                                    descriptionModel.setLowestPrice(
-                                            Float.parseFloat(
-                                                    response.getString("lowest_price")
-                                                            .replace("€", "")
-                                                            .replace(",", ".")
-                                                            .replace("-", "0")
-                                            )
-                                    );
-                                    descriptionModel.setVolume(
-                                            Integer.parseInt(
-                                                    response.getString  ("volume")
-                                                            .replace(",", "")
-                                            )
-                                    );
-                                    descriptionModel.setMedianPrice(
-                                            Float.parseFloat(
-                                                    response.getString("median_price")
-                                                            .replace("€", "")
-                                                            .replace(",", ".")
-                                                            .replace("-", "0")
-                                            )
-                                    );
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+                                volleyCallback.onSuccess(response, descriptionModel);
                             }
                         },
                         new Response.ErrorListener() {
@@ -256,41 +285,23 @@ public class InventoryHandler {
                 queue.add(jsonObjectRequest);
             }
             try {
-                Thread.sleep(3000);
+                Thread.sleep(3500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
 
-        // Findet hier immer noch keine preise. behindert der sleep das vllt?
-        while (descriptionModelArrayList.get(descriptionModelArrayList.size() - 1).getLowestPrice() < 0) {
-            try {
-                Thread.sleep(1000);
-                Log.d("Debug ", "Waiting on prices");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // TODO: Why is this called twice?
-        Log.d("Hope", "pls let prices be here...");
-
-        // Only sends 2 prices, both 0.0
+        Log.d("DEBUG: ", "Description-Counter: " + String.valueOf(descriptionCounter));
+        Log.d("DEBUG: ", "List of all descriptions: ");
+        // Only sends 2 prices, both 0.0 ?!
         for (DescriptionModel descriptionModel : descriptionModelArrayList) {
             Log.d("price", String.valueOf(descriptionModel.getLowestPrice()));
         }
-
-        // is 52...?!
-        Log.d("Final Counter: ", String.valueOf(counter));
-
-        // Writing the ItemList into a .json-File:
-        // TODO: Currently just hoping everything goes well with price fetching...
-        createJsonFromData(descriptionModelArrayList, itemModelArrayList, steamID);
     }
 
     private void createJsonFromData(ArrayList<DescriptionModel> descriptionModelArrayList, ArrayList<ItemModel> itemModelArrayList, String steamID) {
+        Log.d("DEBUG: ", "Starting createJsonFromData now");
         try {
-            // TODO: check if the LocalDateTime.now() format should be changed:
             JSONObject rgDescriptions = new JSONObject();
             JSONObject rgInventory = new JSONObject();
 
@@ -314,6 +325,7 @@ public class InventoryHandler {
                     newDescriptionEntry.put("tradable", 0);
                 }
                 rgDescriptions.put(String.valueOf(model.getClassid()), newDescriptionEntry);
+                Log.d("New description: ", newDescriptionEntry.toString());
             }
 
             for (ItemModel model : itemModelArrayList) {
@@ -321,6 +333,7 @@ public class InventoryHandler {
                         .put("classid", model.getClassid())
                         .put("id", model.getId());
                 rgInventory.put(String.valueOf(model.getId()), newItemEntry);
+                Log.d("New item: ", newItemEntry.toString());
             }
 
             JSONObject newInventoryHistoryEntry = new JSONObject()
@@ -336,6 +349,7 @@ public class InventoryHandler {
     }
 
     private void writeJsonToLocalFile(JSONObject jsonObject, String steamID) {
+        Log.d("DEBUG: ", "Starting writeJsonToLocalFile now");
         try {
             FileOutputStream fileOutputStream = context.openFileOutput(("inv_" + steamID + ".json").replace("/", "_"), context.MODE_PRIVATE);
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);

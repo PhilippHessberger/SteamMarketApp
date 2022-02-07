@@ -21,7 +21,7 @@ public class InventoryDetails extends AppCompatActivity {
         this.inventory = getIntent().getExtras().getString("inventory");
 
         InventoryHandler inventoryHandler = new InventoryHandler(InventoryDetails.this);
-        ArrayList<ItemModel> itemModelArrayList = inventoryHandler.extractInventoryHistoryFromJsonFile(inventory);
+        ArrayList<ItemModel> itemModelArrayList = inventoryHandler.extractLastInventoryHistoryEntryFromJsonFile(inventory);
 
         RecyclerView inventoryDetailsRecyclerView = findViewById(R.id.inventoryDetailsRecyclerView);
         ItemAdapter itemAdapter = new ItemAdapter(InventoryDetails.this, itemModelArrayList);

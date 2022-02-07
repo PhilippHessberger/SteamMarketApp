@@ -4,8 +4,8 @@
     <string name="getPortfolioData">Get Portfolio Data</string>
     <string name="enterSteamID">Enter your SteamID here…</string>
     <string name="steamIDExample1">1. Open your browser and go to your steam profile page.</string>
-    <string name="steamIDExample2">2. In the search bar you will find something resembling this: https://steamcommunity.com/id/****/</string>
-    <string name="steamIDExample3">3. Copy and paste the part where the **** are in the example provided.</string>
+    <string name="steamIDExample2">2. In the search bar you will find something resembling this: https://steamcommunity.com/****/****/</string>
+    <string name="steamIDExample3">3. Copy and paste the part where the ****/**** are in the example provided.</string>
     <!-- Item List -->
     <string name="refresh">Refresh</string>
     <!-- Item CardView -->

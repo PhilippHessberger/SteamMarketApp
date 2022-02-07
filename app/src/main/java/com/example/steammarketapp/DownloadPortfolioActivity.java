@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -25,6 +26,7 @@ public class DownloadPortfolioActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (textInputLayoutEnterSteamID.getEditText().getText() != null) {
                     // TODO: Now the data needs to be downloaded
+                    Log.d("DEBUG: ", "Starting buttonGetPortfolioData onClick now");
                     InventoryHandler inventoryHandler = new InventoryHandler(DownloadPortfolioActivity.this);
                     inventoryHandler.downloadInventoryForSteamID(String.valueOf(textInputLayoutEnterSteamID.getEditText().getText()));
                     finish();
