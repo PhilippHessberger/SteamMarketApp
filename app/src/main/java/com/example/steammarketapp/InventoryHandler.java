@@ -20,6 +20,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -169,6 +171,7 @@ public class InventoryHandler {
 
     private void extractDataFromJson(JSONObject response, RequestQueue queue, String steamID) {
         Log.d("DEBUG: ", "Starting extractDataFromJson now");
+
         ArrayList<ItemModel> itemModelArrayList = new ArrayList<>();
         ArrayList<DescriptionModel> descriptionModelArrayList = new ArrayList<>();
 
@@ -210,79 +213,72 @@ public class InventoryHandler {
         }
 
         // Fetching Prices for Descriptions and matching ItemModels with their DescriptionModels:
-        fetchPricesForDescriptions(queue,
-                new VolleyCallback() {
-                    @Override
-                    public void onSuccess(JSONObject response, DescriptionModel descriptionModel) {
-                        try {
-                            descriptionModel.setLowestPrice(
-                                    Float.parseFloat(
-                                            response.getString("lowest_price")
-                                            .replace("€", "")
-                                            .replace(",", ".")
-                                            .replace("-", "0")
-                                    )
-                            );
-                            descriptionModel.setVolume(
-                                    Integer.parseInt(
-                                            response.getString  ("volume")
-                                            .replace(",", "")
-                                    )
-                            );
-                            descriptionModel.setMedianPrice(
-                                    Float.parseFloat(
-                                            response.getString("median_price")
-                                            .replace("€", "")
-                                            .replace(",", ".")
-                                            .replace("-", "0")
-                                    )
-                            );
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                descriptionModelArrayList,
-                itemModelArrayList,
-                steamID
-        );
-
-        for (DescriptionModel descriptionModel : descriptionModelArrayList) {
-            Log.d("des. : ", String.valueOf(descriptionModel.getLowestPrice()));
-        }
-
-        // Currently calling it here because we don't know how Callback really works
-        createJsonFromData(descriptionModelArrayList, itemModelArrayList, steamID);
+        fetchPricesForDescriptions(queue, descriptionModelArrayList, itemModelArrayList, steamID);
     }
 
-    private void fetchPricesForDescriptions(RequestQueue queue, VolleyCallback volleyCallback, ArrayList<DescriptionModel> descriptionModelArrayList, ArrayList<ItemModel> itemModelArrayList, String steamID) {
+    private void fetchPricesForDescriptions(RequestQueue queue, ArrayList<DescriptionModel> descriptionModelArrayList, ArrayList<ItemModel> itemModelArrayList, String steamID) {
         Log.d("DEBUG: ", "Starting fetchPricesForDescriptions now");
-        String baseURL = "https://steamcommunity.com/market/priceoverview/?appid=730&currency=3&market_hash_name=";
-        int descriptionCounter = 0;
-        String output = "";
+
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+
         for (DescriptionModel descriptionModel : descriptionModelArrayList) {
+
             if (descriptionModel.isMarketable()) {
-                // TODO: remove counter and URL debug messages:
-                Log.d("Counter ", String.valueOf(descriptionCounter++));
-                Log.d("Counter ", "URL of description: " + baseURL + descriptionModel.getItemName().replace(" ", "%20"));
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                        Request.Method.GET,
-                        baseURL + descriptionModel.getItemName().replace(" ", "%20"),
-                        null,
-                        new Response.Listener<JSONObject>() {
+                fetchPriceForMarketHashName(
+                        queue,
+                        new VolleyCallback() {
                             @Override
-                            public void onResponse(JSONObject response) {
-                                volleyCallback.onSuccess(response, descriptionModel);
+                            public void onSuccess(JSONObject response) {
+                                Log.d("Now getting response to :", "");
+                                try {
+                                    descriptionModel.setLowestPrice(
+                                            roundPrice(
+                                                    Float.parseFloat(
+                                                            response.getString("lowest_price")
+                                                                    .replace(",", ".")
+                                                                    .replace("€", "")
+                                                                    .replace("-", "0")
+                                                    )
+                                            )
+
+                                    );
+                                    descriptionModel.setVolume(
+                                            Integer.parseInt(
+                                                    response.getString("volume")
+                                                            .replace(",", "")
+                                            )
+                                    );
+                                    descriptionModel.setMedianPrice(
+                                            roundPrice(
+                                                    Float.parseFloat(
+                                                    response.getString("median_price")
+                                                            .replace(",", ".")
+                                                            .replace("€", "")
+                                                            .replace("-", "0")
+                                                    )
+                                            )
+
+                                    );
+                                    Log.d("lowest_price", String.valueOf(descriptionModel.getLowestPrice()));
+                                    Log.d("volume", String.valueOf(descriptionModel.getVolume()));
+                                    Log.d("median_price", String.valueOf(descriptionModel.getMedianPrice()));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                if (descriptionModel == descriptionModelArrayList.get(descriptionModelArrayList.size() - 1)) {
+                                    createJsonFromData(descriptionModelArrayList, itemModelArrayList, steamID);
+                                }
                             }
                         },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.d("Error in getting prices", error.toString());
-                            }
-                        }
+                        descriptionModel.getItemName()
                 );
-                queue.add(jsonObjectRequest);
+            } else {
+                // If it is not marketable, set lowest_price, volume and median_price to 0.
+                Log.d("Not marketable description: ", descriptionModel.getItemName());
+                descriptionModel.setLowestPrice(0);
+                descriptionModel.setVolume(0);
+                descriptionModel.setMedianPrice(0);
             }
             try {
                 Thread.sleep(3500);
@@ -290,13 +286,30 @@ public class InventoryHandler {
                 e.printStackTrace();
             }
         }
+    }
 
-        Log.d("DEBUG: ", "Description-Counter: " + String.valueOf(descriptionCounter));
-        Log.d("DEBUG: ", "List of all descriptions: ");
-        // Only sends 2 prices, both 0.0 ?!
-        for (DescriptionModel descriptionModel : descriptionModelArrayList) {
-            Log.d("price", String.valueOf(descriptionModel.getLowestPrice()));
-        }
+    private void fetchPriceForMarketHashName(RequestQueue queue, VolleyCallback volleyCallback, String marketHashName) {
+
+        String baseURL = "https://steamcommunity.com/market/priceoverview/?appid=730&currency=3&market_hash_name=";
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.GET,
+                baseURL + marketHashName.replace(" ", "%20"),
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        volleyCallback.onSuccess(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Error in getting prices", error.toString());
+                    }
+                }
+        );
+        queue.add(jsonObjectRequest);
     }
 
     private void createJsonFromData(ArrayList<DescriptionModel> descriptionModelArrayList, ArrayList<ItemModel> itemModelArrayList, String steamID) {
@@ -309,9 +322,9 @@ public class InventoryHandler {
                 JSONObject newDescriptionEntry = new JSONObject()
                         .put("classid", String.valueOf(model.getClassid()))
                         .put("market_hash_name", model.getItemName())
-                        .put("lowest_price", model.getLowestPrice())
+                        .put("lowest_price", roundPrice(model.getLowestPrice()))
                         .put("volume", model.getVolume())
-                        .put("median_price", model.getMedianPrice());
+                        .put("median_price", roundPrice(model.getMedianPrice()));
 
                 if (model.isMarketable()) {
                     newDescriptionEntry.put("marketable", 1);
@@ -332,9 +345,12 @@ public class InventoryHandler {
                 JSONObject newItemEntry = new JSONObject()
                         .put("classid", model.getClassid())
                         .put("id", model.getId());
-                rgInventory.put(String.valueOf(model.getId()), newItemEntry);
+                rgInventory.put(String.valueOf(itemModelArrayList.indexOf(model)), newItemEntry);
                 Log.d("New item: ", newItemEntry.toString());
             }
+
+            Log.d("rgDescriptions", rgDescriptions.toString());
+            Log.d("rgInventory", rgInventory.toString());
 
             JSONObject newInventoryHistoryEntry = new JSONObject()
                     .put("rgInventory", rgInventory)
@@ -350,12 +366,12 @@ public class InventoryHandler {
 
     private void writeJsonToLocalFile(JSONObject jsonObject, String steamID) {
         Log.d("DEBUG: ", "Starting writeJsonToLocalFile now");
+        Log.d("Writing json to local file:", jsonObject.toString());
         try {
             FileOutputStream fileOutputStream = context.openFileOutput(("inv_" + steamID + ".json").replace("/", "_"), context.MODE_PRIVATE);
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
 
             outputStreamWriter.write(jsonObject.toString());
-            Log.d("Writing json to local file:", jsonObject.toString());
             Toast.makeText(context, "Local file created", Toast.LENGTH_SHORT).show();
 
             outputStreamWriter.flush();
@@ -376,5 +392,15 @@ public class InventoryHandler {
             }
         }
         return false;
+    }
+
+    public interface VolleyCallback {
+        void onSuccess(JSONObject response);
+    }
+
+    private float roundPrice(float d) {
+        BigDecimal bd = new BigDecimal(Float.toString(d));
+        bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
+        return bd.floatValue();
     }
 }
