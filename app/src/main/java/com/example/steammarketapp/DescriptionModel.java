@@ -1,20 +1,22 @@
 package com.example.steammarketapp;
 
+import java.math.BigInteger;
+
 public class DescriptionModel {
 
-    private int classid, volume = 0;
+    private BigInteger classid, volume;
     private String itemName;
     private boolean marketable, tradable;
     private float lowestPrice, medianPrice;
 
-    public DescriptionModel(int classid, String itemName, int marketable, int tradable) {
+    public DescriptionModel(BigInteger classid, String itemName, int marketable, int tradable) {
         this.classid = classid;
         this.itemName = itemName;
         this.marketable = (marketable == 1);
         this.tradable = (tradable == 1);
     }
 
-    public DescriptionModel(int classid, String itemName, int marketable, int tradable, float lowestPrice, float medianPrice, int volume) {
+    public DescriptionModel(BigInteger classid, String itemName, int marketable, int tradable, float lowestPrice, float medianPrice, BigInteger volume) {
         this.classid = classid;
         this.itemName = itemName;
         this.marketable = (marketable == 1);
@@ -24,7 +26,7 @@ public class DescriptionModel {
         this.volume = volume;
     }
 
-    public int getClassid() {
+    public BigInteger getClassid() {
         return classid;
     }
 
@@ -56,11 +58,11 @@ public class DescriptionModel {
         this.medianPrice = medianPrice;
     }
 
-    public int getVolume() {
+    public BigInteger getVolume() {
         return volume;
     }
 
-    public void setVolume(int volume) {
+    public void setVolume(BigInteger volume) {
         this.volume = volume;
     }
 }

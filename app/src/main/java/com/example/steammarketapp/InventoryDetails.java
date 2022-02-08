@@ -1,6 +1,7 @@
 package com.example.steammarketapp;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,13 +13,12 @@ import java.util.ArrayList;
 
 public class InventoryDetails extends AppCompatActivity {
 
-    private String inventory;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.inventory_details);
-        this.inventory = getIntent().getExtras().getString("inventory");
+
+        String inventory = getIntent().getExtras().getString("inventory");
 
         InventoryHandler inventoryHandler = new InventoryHandler(InventoryDetails.this);
         ArrayList<ItemModel> itemModelArrayList = inventoryHandler.extractLastInventoryHistoryEntryFromJsonFile(inventory);

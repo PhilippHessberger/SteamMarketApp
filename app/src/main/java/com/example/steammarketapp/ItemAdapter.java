@@ -1,6 +1,7 @@
 package com.example.steammarketapp;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +58,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         }
 
         public void setData(ItemModel currentObject, int position) {
+            Log.d("currentObject" + currentObject.getId(), currentObject.getDescriptionModel().getItemName());
             this.name.setText(currentObject.getDescriptionModel().getItemName());
             this.price.setText(String.valueOf(currentObject.getDescriptionModel().getLowestPrice()));
             this.priceMedian.setText(String.valueOf(currentObject.getDescriptionModel().getMedianPrice()));

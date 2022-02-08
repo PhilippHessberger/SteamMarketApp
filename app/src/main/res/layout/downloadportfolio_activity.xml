@@ -20,10 +20,9 @@
         android:id="@+id/textInputLayoutEnterSteamID"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/textViewSteamIDExample4">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -36,17 +35,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/steamIDExample1"
-        app:layout_constraintBottom_toTopOf="@+id/textInputLayoutEnterSteamID"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.526" />
+        app:layout_constraintVertical_bias="0.112" />
 
     <TextView
         android:id="@+id/textViewSteamIDExample2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/steamIDExample2"
-        app:layout_constraintStart_toStartOf="@+id/textViewSteamIDExample1"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewSteamIDExample1" />
 
     <TextView
@@ -54,7 +53,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/steamIDExample3"
-        app:layout_constraintStart_toStartOf="@+id/textViewSteamIDExample2"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewSteamIDExample2" />
+
+    <TextView
+        android:id="@+id/textViewSteamIDExample4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/steamIDExample4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSteamIDExample3" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

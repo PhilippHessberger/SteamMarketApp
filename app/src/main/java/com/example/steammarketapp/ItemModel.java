@@ -1,12 +1,13 @@
 package com.example.steammarketapp;
 
+import java.math.BigInteger;
+
 public class ItemModel {
 
-    private final int classid;
-    private final int id;
+    private final BigInteger classid, id;
     private DescriptionModel descriptionModel;
 
-    public ItemModel(int classid, int id) {
+    public ItemModel(BigInteger classid, BigInteger id) {
         this.classid = classid;
         this.id = id;
     }
@@ -19,11 +20,11 @@ public class ItemModel {
         return descriptionModel;
     }
 
-    public int getClassid() {
+    public BigInteger getClassid() {
         return classid;
     }
 
-    public int getId() {
+    public BigInteger getId() {
         return id;
     }
 }
