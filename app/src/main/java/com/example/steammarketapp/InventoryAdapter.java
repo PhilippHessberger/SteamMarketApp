@@ -64,7 +64,12 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
         }
 
         public void setData(InventoryModel currentObject, int position) {
-            this.textViewInventoryCard.setText(currentObject.getSteamID());
+            this.textViewInventoryCard.setText(currentObject.getSteamID()
+                    .replace("inv_", "")
+                    .replace(".json", "")
+                    .replace("id_", "")
+                    .replace("profiles_", "")
+            );
 
             this.position = position;
             this.currentObject = currentObject;
