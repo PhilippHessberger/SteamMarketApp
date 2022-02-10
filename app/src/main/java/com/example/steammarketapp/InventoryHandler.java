@@ -38,7 +38,6 @@ public class InventoryHandler {
     public ArrayList<ItemModel> extractLastInventoryHistoryEntryFromJsonFile(String filename) {
         Log.d("DEBUG: ", "Starting extractLastInventoryHistoryEntryFromJsonFile now");
 
-        // TODO: Technically it is the newest entry we extract... Fix it. Maybe...
         // Opening the local inventory history file:
         try {
             File[] files = context.getFilesDir().listFiles();
@@ -104,6 +103,7 @@ public class InventoryHandler {
                 }
             }
         } catch (IOException | JSONException e) {
+            Toast.makeText(context, "Something with the file is wrong, retry or contact developer.", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
 
@@ -111,6 +111,9 @@ public class InventoryHandler {
     }
 
     public ArrayList<ItemModel>[] extractInventoryHistoryFromJsonFile(String filename) {
+
+        // TODO: implement error handling
+
         Log.d("DEBUG: ", "Starting extractInventoryHistoryFromJsonFile now");
 
         // Opening the local inventory history file:
@@ -214,6 +217,7 @@ public class InventoryHandler {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(context, "HTTP-ErrorCode: " + error.networkResponse.statusCode, Toast.LENGTH_LONG).show();
                         error.printStackTrace();
                     }
                 }
@@ -261,6 +265,7 @@ public class InventoryHandler {
                 );
             }
         } catch (JSONException e) {
+            Toast.makeText(context, "Something with the received data is wrong, retry or contact developer", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
 
@@ -272,8 +277,6 @@ public class InventoryHandler {
         Log.d("DEBUG: ", "Starting fetchPricesForDescriptions now");
 
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
-
-        Toast.makeText(context, "This can take some time...", Toast.LENGTH_LONG).show();
 
         for (DescriptionModel descriptionModel : descriptionModelArrayList) {
 
@@ -319,6 +322,7 @@ public class InventoryHandler {
                                     Log.d("volume", String.valueOf(descriptionModel.getVolume()));
                                     Log.d("median_price", String.valueOf(descriptionModel.getMedianPrice()));
                                 } catch (JSONException e) {
+                                    Toast.makeText(context, "Something with the data was wrong, retry or contact developer", Toast.LENGTH_LONG).show();
                                     e.printStackTrace();
                                 }
 
@@ -340,6 +344,7 @@ public class InventoryHandler {
             try {
                 Thread.sleep(3500);
             } catch (InterruptedException e) {
+                Toast.makeText(context, "Something highly unlikely happened, just retry.", Toast.LENGTH_LONG).show();
                 e.printStackTrace();
             }
         }
@@ -362,6 +367,7 @@ public class InventoryHandler {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(context, "Error while fetching prices, please retry or contact developer", Toast.LENGTH_LONG).show();
                         Log.d("Error in getting prices", error.toString());
                     }
                 }
@@ -390,8 +396,6 @@ public class InventoryHandler {
                     // Calculating the current inventory value:
                     if (descriptionModel.getClassid().equals(itemModel.getClassid())) {
                         metadata.addPortfolioValue(descriptionModel.getLowestPrice());
-                        // TODO: remove after testing:
-                        Log.d("price ", String.valueOf(descriptionModel.getLowestPrice()));
                     }
                 }
 
@@ -422,9 +426,6 @@ public class InventoryHandler {
                     .put("inventoryValue", metadata.getPortfolioValue())
                     .put("dateOfEntry", metadata.getDateOfEntry());
 
-            // TODO: remove after confirming functionality of metadata:
-            Log.d("Metadata ", jsonMetadata.toString(4));
-
             JSONObject newInventoryHistoryEntry = new JSONObject()
                     .put("metadata", jsonMetadata)
                     .put("rgInventory", rgInventory)
@@ -434,17 +435,16 @@ public class InventoryHandler {
 
             writeJsonToLocalFile(newEntry, steamID);
         } catch (JSONException e) {
+            Toast.makeText(context, "Something went wrong while storing local data, retry or contact developer", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
 
     private void writeJsonToLocalFile(JSONObject jsonObject, String steamID) {
         Log.d("DEBUG: ", "Starting writeJsonToLocalFile now");
-        // TODO: Check: The last fifth of the string to check if it contains all descriptions:
 
         try {
-            Log.d("last part of jsonObject", jsonObject.toString(4).substring(jsonObject.toString().length() /2));
-            FileOutputStream fileOutputStream = context.openFileOutput(("inv_" + steamID + ".json").replace("/", "_"), context.MODE_PRIVATE);
+            FileOutputStream fileOutputStream = context.openFileOutput(("inv_" + steamID + ".json").replace("/", "_"), Context.MODE_PRIVATE);
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
 
             outputStreamWriter.write(jsonObject.toString());
@@ -452,7 +452,8 @@ public class InventoryHandler {
 
             outputStreamWriter.flush();
             outputStreamWriter.close();
-        } catch (IOException | JSONException e) {
+        } catch (IOException e) {
+            Toast.makeText(context, "Something went wrong while writing to local file, retry or contact developer", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
@@ -475,9 +476,9 @@ public class InventoryHandler {
     }
 
     public static BigDecimal roundPrice(BigDecimal d) {
-        // TODO: Check if this actually works this way too:
-        BigDecimal bd;
-        bd = d.setScale(2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal bd = d.setScale(2, BigDecimal.ROUND_HALF_UP);
+        Log.d("Bevor runden", String.valueOf(d));
+        Log.d("Nach runden", String.valueOf(bd));
         return bd;
     }
 }
