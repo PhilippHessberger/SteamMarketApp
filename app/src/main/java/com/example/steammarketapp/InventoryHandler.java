@@ -289,13 +289,11 @@ public class InventoryHandler {
                                 Log.d("Now getting response to :", "");
                                 try {
                                     descriptionModel.setLowestPrice(
-                                            roundPrice(
-                                                    BigDecimal.valueOf(
-                                                            Long.parseLong("+" + response.getString("lowest_price")
-                                                                    .replace(",", "")
-                                                                    .replace("€", "")
-                                                                    .replace("-", "0"))
-                                                    )
+                                            BigDecimal.valueOf(
+                                                    Long.parseLong("+" + response.getString("lowest_price")
+                                                            .replace(",", "")
+                                                            .replace("€", "")
+                                                            .replace("-", "0"))
                                             )
 
                                     );
@@ -308,13 +306,11 @@ public class InventoryHandler {
                                             )
                                     );
                                     descriptionModel.setMedianPrice(
-                                            roundPrice(
-                                                    BigDecimal.valueOf(
-                                                            Long.parseLong("+" + response.getString("median_price")
-                                                                    .replace(",", "")
-                                                                    .replace("€", "")
-                                                                    .replace("-", "0"))
-                                                    )
+                                            BigDecimal.valueOf(
+                                                    Long.parseLong("+" + response.getString("median_price")
+                                                            .replace(",", "")
+                                                            .replace("€", "")
+                                                            .replace("-", "0"))
                                             )
 
                                     );
@@ -403,9 +399,9 @@ public class InventoryHandler {
                 JSONObject newDescriptionEntry = new JSONObject()
                         .put("classid", String.valueOf(descriptionModel.getClassid()))
                         .put("market_hash_name", descriptionModel.getItemName())
-                        .put("lowest_price", roundPrice(descriptionModel.getLowestPrice()))
+                        .put("lowest_price", descriptionModel.getLowestPrice())
                         .put("volume", descriptionModel.getVolume())
-                        .put("median_price", roundPrice(descriptionModel.getMedianPrice()));
+                        .put("median_price", descriptionModel.getMedianPrice());
 
                 if (descriptionModel.isMarketable()) {
                     newDescriptionEntry.put("marketable", 1);
@@ -473,12 +469,5 @@ public class InventoryHandler {
 
     public interface VolleyCallback {
         void onSuccess(JSONObject response);
-    }
-
-    public static BigDecimal roundPrice(BigDecimal d) {
-        BigDecimal bd = d.setScale(2, BigDecimal.ROUND_HALF_UP);
-        Log.d("Bevor runden", String.valueOf(d));
-        Log.d("Nach runden", String.valueOf(bd));
-        return bd;
     }
 }
