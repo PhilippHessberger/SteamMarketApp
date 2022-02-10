@@ -1,5 +1,6 @@
 package com.example.steammarketapp;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class DescriptionModel {
@@ -7,7 +8,8 @@ public class DescriptionModel {
     private BigInteger classid, volume;
     private String itemName;
     private boolean marketable, tradable;
-    private float lowestPrice, medianPrice;
+    // Prices are saved in cents because it is easier to calculate stuff that way.
+    private BigDecimal lowestPrice, medianPrice;
 
     public DescriptionModel(BigInteger classid, String itemName, int marketable, int tradable) {
         this.classid = classid;
@@ -16,7 +18,7 @@ public class DescriptionModel {
         this.tradable = (tradable == 1);
     }
 
-    public DescriptionModel(BigInteger classid, String itemName, int marketable, int tradable, float lowestPrice, float medianPrice, BigInteger volume) {
+    public DescriptionModel(BigInteger classid, String itemName, int marketable, int tradable, BigDecimal lowestPrice, BigDecimal medianPrice, BigInteger volume) {
         this.classid = classid;
         this.itemName = itemName;
         this.marketable = (marketable == 1);
@@ -42,19 +44,19 @@ public class DescriptionModel {
         return tradable;
     }
 
-    public float getLowestPrice() {
+    public BigDecimal getLowestPrice() {
         return lowestPrice;
     }
 
-    public void setLowestPrice(float lowestPrice) {
+    public void setLowestPrice(BigDecimal lowestPrice) {
         this.lowestPrice = lowestPrice;
     }
 
-    public float getMedianPrice() {
+    public BigDecimal getMedianPrice() {
         return medianPrice;
     }
 
-    public void setMedianPrice(float medianPrice) {
+    public void setMedianPrice(BigDecimal medianPrice) {
         this.medianPrice = medianPrice;
     }
 
