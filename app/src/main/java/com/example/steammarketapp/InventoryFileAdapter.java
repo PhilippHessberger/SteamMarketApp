@@ -17,35 +17,35 @@ import java.util.ArrayList;
 Hallo ihr ganzen Spieltypen, spielt nicht soviel, sondern kümmert euch um eure Familien und ganz besonders um eure Mütter!!!
  */
 
-public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.InventoryViewHolder> {
+public class InventoryFileAdapter extends RecyclerView.Adapter<InventoryFileAdapter.InventoryViewHolder> {
 
-    private ArrayList<InventoryModel> inventoryModelArrayList;
+    private ArrayList<InventoryFileModel> inventoryFileModelArrayList;
     private LayoutInflater layoutInflater;
     private Context context;
 
-    public InventoryAdapter(Context context, ArrayList<InventoryModel> inventoryModelArrayList) {
-        this.inventoryModelArrayList = inventoryModelArrayList;
+    public InventoryFileAdapter(Context context, ArrayList<InventoryFileModel> inventoryFileModelArrayList) {
+        this.inventoryFileModelArrayList = inventoryFileModelArrayList;
         layoutInflater = LayoutInflater.from(context);
         this.context = context;
     }
 
     @NonNull
     @Override
-    public InventoryAdapter.InventoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = layoutInflater.inflate(R.layout.inventory_cardview, parent, false);
+    public InventoryFileAdapter.InventoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = layoutInflater.inflate(R.layout.inventoryfile_cardview, parent, false);
         return new InventoryViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull InventoryAdapter.InventoryViewHolder holder, int position) {
-        InventoryModel current = inventoryModelArrayList.get(position);
+    public void onBindViewHolder(@NonNull InventoryFileAdapter.InventoryViewHolder holder, int position) {
+        InventoryFileModel current = inventoryFileModelArrayList.get(position);
         holder.setData(current, position);
         holder.setListeners();
     }
 
     @Override
     public int getItemCount() {
-        return inventoryModelArrayList.size();
+        return inventoryFileModelArrayList.size();
     }
 
     public class InventoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -55,7 +55,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
         ConstraintLayout constraintLayout;
 
         private int position;
-        private InventoryModel currentObject;
+        private InventoryFileModel currentObject;
 
         public InventoryViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -63,7 +63,7 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
             constraintLayout        = (ConstraintLayout) itemView.findViewById(R.id.layoutInventoryCard);
         }
 
-        public void setData(InventoryModel currentObject, int position) {
+        public void setData(InventoryFileModel currentObject, int position) {
             this.textViewInventoryCard.setText(currentObject.getSteamID()
                     .replace("inv_", "")
                     .replace(".json", "")
@@ -76,12 +76,12 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
         }
 
         public void setListeners() {
-            constraintLayout.setOnClickListener(InventoryAdapter.InventoryViewHolder.this);
+            constraintLayout.setOnClickListener(InventoryFileAdapter.InventoryViewHolder.this);
         }
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(context, InventoryDetails.class);
+            Intent intent = new Intent(context, InventoryFileDetails.class);
             intent.putExtra("inventory", currentObject.getFilename());
             context.startActivity(intent);
         }

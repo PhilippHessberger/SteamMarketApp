@@ -110,6 +110,10 @@ public class InventoryHandler {
         return null;
     }
 
+    public void getInventoryValue() {
+
+    }
+
     public ArrayList<ItemModel>[] extractInventoryHistoryFromJsonFile(String filename) {
 
         // TODO: implement error handling
