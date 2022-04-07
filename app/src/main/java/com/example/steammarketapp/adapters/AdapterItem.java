@@ -1,4 +1,4 @@
-package com.example.steammarketapp;
+package com.example.steammarketapp.adapters;
 
 import android.content.Context;
 import android.util.Log;
@@ -10,17 +10,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.steammarketapp.R;
+import com.example.steammarketapp.data_models.ModelItem;
+
 import java.util.ArrayList;
 
-public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
+public class AdapterItem extends RecyclerView.Adapter<AdapterItem.ItemViewHolder> {
 
-    private ArrayList<ItemModel> itemModelArrayList;
+    private ArrayList<ModelItem> modelItemArrayList;
     private LayoutInflater layoutInflater;
     private Context context;
 
-    public ItemAdapter(Context context, ArrayList<ItemModel> itemModelArrayList) {
+    public AdapterItem(Context context, ArrayList<ModelItem> modelItemArrayList) {
         layoutInflater = LayoutInflater.from(context);
-        this.itemModelArrayList = itemModelArrayList;
+        this.modelItemArrayList = modelItemArrayList;
         this.context = context;
     }
 
@@ -33,13 +36,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
-        ItemModel current = itemModelArrayList.get(position);
+        ModelItem current = modelItemArrayList.get(position);
         holder.setData(current, position);
     }
 
     @Override
     public int getItemCount() {
-        return itemModelArrayList.size();
+        return modelItemArrayList.size();
     }
 
     public class ItemViewHolder extends RecyclerView.ViewHolder {
@@ -47,7 +50,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         private TextView name, volume, price, priceMedian;
 
         private int position;
-        private ItemModel currentObject;
+        private ModelItem currentObject;
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -57,7 +60,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             volume      = (TextView) itemView.findViewById(R.id.itemCardViewTextViewItemVolume);
         }
 
-        public void setData(ItemModel currentObject, int position) {
+        public void setData(ModelItem currentObject, int position) {
             Log.d("currentObject" + currentObject.getId(), currentObject.getDescriptionModel().getItemName());
             this.name.setText(currentObject.getDescriptionModel().getItemName());
             this.price.setText(String.valueOf(currentObject.getDescriptionModel().getLowestPrice()));

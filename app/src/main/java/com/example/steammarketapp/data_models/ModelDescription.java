@@ -1,9 +1,9 @@
-package com.example.steammarketapp;
+package com.example.steammarketapp.data_models;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class DescriptionModel {
+public class ModelDescription {
 
     private BigInteger classid, volume;
     private String itemName;
@@ -11,14 +11,14 @@ public class DescriptionModel {
     // Prices are saved in cents because it is easier to calculate stuff that way.
     private BigDecimal lowestPrice, medianPrice;
 
-    public DescriptionModel(BigInteger classid, String itemName, int marketable, int tradable) {
+    public ModelDescription(BigInteger classid, String itemName, int marketable, int tradable) {
         this.classid = classid;
         this.itemName = itemName;
         this.marketable = (marketable == 1);
         this.tradable = (tradable == 1);
     }
 
-    public DescriptionModel(BigInteger classid, String itemName, int marketable, int tradable, BigDecimal lowestPrice, BigDecimal medianPrice, BigInteger volume) {
+    public ModelDescription(BigInteger classid, String itemName, int marketable, int tradable, BigDecimal lowestPrice, BigDecimal medianPrice, BigInteger volume) {
         this.classid = classid;
         this.itemName = itemName;
         this.marketable = (marketable == 1);

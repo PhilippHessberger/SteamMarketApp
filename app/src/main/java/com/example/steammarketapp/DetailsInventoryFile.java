@@ -8,9 +8,12 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.steammarketapp.adapters.AdapterItem;
+import com.example.steammarketapp.data_models.ModelItem;
+
 import java.util.ArrayList;
 
-public class InventoryFileDetails extends AppCompatActivity {
+public class DetailsInventoryFile extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -19,13 +22,13 @@ public class InventoryFileDetails extends AppCompatActivity {
 
         String inventory = getIntent().getExtras().getString("inventory");
 
-        InventoryHandler inventoryHandler = new InventoryHandler(InventoryFileDetails.this);
-        ArrayList<ItemModel> itemModelArrayList = inventoryHandler.extractLastInventoryHistoryEntryFromJsonFile(inventory);
+        InventoryHandler inventoryHandler = new InventoryHandler(DetailsInventoryFile.this);
+        ArrayList<ModelItem> modelItemArrayList = inventoryHandler.extractLastInventoryHistoryEntryFromJsonFile(inventory);
 
         RecyclerView inventoryDetailsRecyclerView = findViewById(R.id.inventoryDetailsRecyclerView);
-        ItemAdapter itemAdapter = new ItemAdapter(InventoryFileDetails.this, itemModelArrayList);
-        inventoryDetailsRecyclerView.setAdapter(itemAdapter);
-        LinearLayoutManager offerLayoutManager = new LinearLayoutManager(InventoryFileDetails.this);
+        AdapterItem adapterItem = new AdapterItem(DetailsInventoryFile.this, modelItemArrayList);
+        inventoryDetailsRecyclerView.setAdapter(adapterItem);
+        LinearLayoutManager offerLayoutManager = new LinearLayoutManager(DetailsInventoryFile.this);
         offerLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         inventoryDetailsRecyclerView.setLayoutManager(offerLayoutManager);
         inventoryDetailsRecyclerView.setItemAnimator(new DefaultItemAnimator());

@@ -1,4 +1,4 @@
-package com.example.steammarketapp;
+package com.example.steammarketapp.activities;
 
 import android.os.Bundle;
 import android.view.View;
@@ -9,9 +9,12 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.steammarketapp.InventoryHandler;
+import com.example.steammarketapp.R;
+
 import java.util.ArrayList;
 
-public class ItemListActivity extends AppCompatActivity {
+public class ActivityItemList extends AppCompatActivity {
 
     // TODO: Check if this app conforms to Steam TOS at some point!!!
 

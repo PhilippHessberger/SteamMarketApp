@@ -10,6 +10,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.steammarketapp.data_models.ModelDescription;
+import com.example.steammarketapp.data_models.ModelInvMetaData;
+import com.example.steammarketapp.data_models.ModelInventory;
+import com.example.steammarketapp.data_models.ModelItem;
+import com.example.steammarketapp.data_models.ModelSnapshot;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,7 +40,7 @@ public class InventoryHandler {
         this.context = context;
     }
 
-    public ArrayList<ItemModel> extractLastInventoryHistoryEntryFromJsonFile(String filename) {
+    public ArrayList<ModelItem> extractLastInventoryHistoryEntryFromJsonFile(String filename) {
         Log.d("DEBUG: ", "Starting extractLastInventoryHistoryEntryFromJsonFile now");
 
         // Opening the local inventory history file:
@@ -58,8 +63,8 @@ public class InventoryHandler {
                     Iterator<String> inventoryEntries = inventoryHistory.keys();
                     JSONObject inventoryEntry = inventoryHistory.getJSONObject((String) inventoryEntries.next());
 
-                    ArrayList<ItemModel> itemModelArrayList = new ArrayList<>();
-                    ArrayList<DescriptionModel> descriptionModelArrayList = new ArrayList<>();
+                    ArrayList<ModelItem> modelItemArrayList = new ArrayList<>();
+                    ArrayList<ModelDescription> modelDescriptionArrayList = new ArrayList<>();
 
                     // Going through all items:
                     JSONObject inventory = inventoryEntry.getJSONObject("rgInventory");
@@ -67,7 +72,7 @@ public class InventoryHandler {
 
                     while (inventoryKeys.hasNext()) {
                         JSONObject item = inventory.getJSONObject((String) inventoryKeys.next());
-                        itemModelArrayList.add(new ItemModel(
+                        modelItemArrayList.add(new ModelItem(
                                 BigInteger.valueOf(Long.parseLong(item.getString("classid"))),
                                 BigInteger.valueOf(Long.parseLong(item.getString("id")))
                         ));
@@ -79,7 +84,7 @@ public class InventoryHandler {
 
                     while (descriptionKeys.hasNext()) {
                         JSONObject description = descriptions.getJSONObject((String) descriptionKeys.next());
-                        descriptionModelArrayList.add(new DescriptionModel(
+                        modelDescriptionArrayList.add(new ModelDescription(
                                 BigInteger.valueOf(Long.parseLong(description.getString("classid"))),
                                 description.getString("market_hash_name"),
                                 description.getInt("marketable"),
@@ -91,15 +96,15 @@ public class InventoryHandler {
                     }
 
                     // Matching items with their description:
-                    for (DescriptionModel descriptionModel : descriptionModelArrayList) {
-                        for (ItemModel itemModel : itemModelArrayList) {
-                            if (descriptionModel.getClassid().equals(itemModel.getClassid())) {
-                                itemModel.setDescriptionModel(descriptionModel);
+                    for (ModelDescription modelDescription : modelDescriptionArrayList) {
+                        for (ModelItem modelItem : modelItemArrayList) {
+                            if (modelDescription.getClassid().equals(modelItem.getClassid())) {
+                                modelItem.setDescriptionModel(modelDescription);
                             }
                         }
                     }
 
-                    return itemModelArrayList;
+                    return modelItemArrayList;
                 }
             }
         } catch (IOException | JSONException e) {
@@ -110,7 +115,7 @@ public class InventoryHandler {
         return null;
     }
 
-    public InventoryModel extractInventoryHistoryFromJsonFile(String filename) {
+    public ModelInventory extractInventoryHistoryFromJsonFile(String filename) {
 
         // TODO: implement error handling
 
@@ -135,12 +140,12 @@ public class InventoryHandler {
                     JSONObject inventoryHistory = new JSONObject(fileToString);
                     Iterator<String> inventoryEntryKeys = inventoryHistory.keys();
 
-                    InventoryModel newInventory = new InventoryModel();
+                    ModelInventory newInventory = new ModelInventory();
                     while (inventoryEntryKeys.hasNext()) {
                         JSONObject inventoryEntryJson = inventoryHistory.getJSONObject( (String) inventoryEntryKeys.next());
 
-                        ArrayList<ItemModel> itemModels = new ArrayList<>();
-                        ArrayList<DescriptionModel> descriptionModels = new ArrayList<>();
+                        ArrayList<ModelItem> modelItems = new ArrayList<>();
+                        ArrayList<ModelDescription> modelDescriptions = new ArrayList<>();
 
                         // Getting all items:
                         JSONObject rgInventory = inventoryEntryJson.getJSONObject("rgInventory");
@@ -149,7 +154,7 @@ public class InventoryHandler {
                         // Going through all items:
                         while (rgInventoryKeys.hasNext()) {
                             JSONObject newItem = rgInventory.getJSONObject((String) rgInventoryKeys.next());
-                            itemModels.add(new ItemModel(
+                            modelItems.add(new ModelItem(
                                     BigInteger.valueOf(Long.parseLong(newItem.getString("classid"))),
                                     BigInteger.valueOf(Long.parseLong(newItem.getString("id")))
                             ));
@@ -161,7 +166,7 @@ public class InventoryHandler {
 
                         while (rgDescriptionsKeys.hasNext()) {
                             JSONObject newDescription = rgDescriptions.getJSONObject((String) rgDescriptionsKeys.next());
-                            descriptionModels.add(new DescriptionModel(
+                            modelDescriptions.add(new ModelDescription(
                                     BigInteger.valueOf(Long.parseLong(newDescription.getString("classid"))),
                                     newDescription.getString("market_hash_name"),
                                     newDescription.getInt("marketable"),
@@ -173,15 +178,15 @@ public class InventoryHandler {
                         }
 
                         // Matching items with their description:
-                        for (DescriptionModel descriptionModel : descriptionModels) {
-                            for (ItemModel itemModel : itemModels) {
-                                if (descriptionModel.getClassid().equals(itemModel.getClassid())) {
-                                    itemModel.setDescriptionModel(descriptionModel);
+                        for (ModelDescription modelDescription : modelDescriptions) {
+                            for (ModelItem modelItem : modelItems) {
+                                if (modelDescription.getClassid().equals(modelItem.getClassid())) {
+                                    modelItem.setDescriptionModel(modelDescription);
                                 }
                             }
                         }
 
-                        InventoryEntryModel newEntry = new InventoryEntryModel(itemModels);
+                        ModelSnapshot newEntry = new ModelSnapshot(modelItems);
                         newInventory.addEntry(newEntry);
                     }
 
@@ -199,15 +204,15 @@ public class InventoryHandler {
         // TODO: Test the implementation:
         // TODO: Implement the following steps:
         // Use filename to open local json and load all previous entries into InventoryModel.
-        InventoryModel inventoryModel = extractInventoryHistoryFromJsonFile(filename);
+        ModelInventory modelInventory = extractInventoryHistoryFromJsonFile(filename);
         // Use the steamLink to get json for new entry.
         // TODO: Refactor the way we fetch data from steam.
         JSONObject newEntry;
         // Create new InventoryEntryModel from new json.
         // TODO: Refactor the way we create JSONObjects.
-        InventoryEntryModel inventoryEntryModel = null;
+        ModelSnapshot snapshotModel = null;
         // Add new InventoryEntryModel to existing InventoryModel.
-        inventoryModel.addEntry(inventoryEntryModel);
+        modelInventory.addEntry(snapshotModel);
         // Convert existing InventoryModel into json.
         // TODO: Refactor the way we create JSONObjects.
         // Write json to local file.
@@ -254,8 +259,8 @@ public class InventoryHandler {
     private void extractDataFromJson(JSONObject response, RequestQueue queue, String steamID) {
         Log.d("DEBUG: ", "Starting extractDataFromJson now");
 
-        ArrayList<ItemModel> itemModelArrayList = new ArrayList<>();
-        ArrayList<DescriptionModel> descriptionModelArrayList = new ArrayList<>();
+        ArrayList<ModelItem> modelItemArrayList = new ArrayList<>();
+        ArrayList<ModelDescription> modelDescriptionArrayList = new ArrayList<>();
 
         // Extracting Items and Descriptions from JSON into ModelLists:
         try {
@@ -264,7 +269,7 @@ public class InventoryHandler {
             Iterator<String> inventoryKeys = inventory.keys();
             while (inventoryKeys.hasNext()) {
                 JSONObject item = inventory.getJSONObject((String) inventoryKeys.next());
-                itemModelArrayList.add(new ItemModel(
+                modelItemArrayList.add(new ModelItem(
                         BigInteger.valueOf(Long.parseLong(item.getString("classid"))),
                         BigInteger.valueOf(Long.parseLong(item.getString("id")))
                 ));
@@ -278,7 +283,7 @@ public class InventoryHandler {
             Iterator<String> descriptionKeys = descriptions.keys();
             while (descriptionKeys.hasNext()) {
                 JSONObject description = descriptions.getJSONObject((String) descriptionKeys.next());
-                descriptionModelArrayList.add(new DescriptionModel(
+                modelDescriptionArrayList.add(new ModelDescription(
                         BigInteger.valueOf(Long.parseLong(description.getString("classid"))),
                         description.getString("market_hash_name"),
                         description.getInt("marketable"),
@@ -296,17 +301,17 @@ public class InventoryHandler {
         }
 
         // Fetching Prices for Descriptions and matching ItemModels with their DescriptionModels:
-        fetchPricesForDescriptions(queue, descriptionModelArrayList, itemModelArrayList, steamID);
+        fetchPricesForDescriptions(queue, modelDescriptionArrayList, modelItemArrayList, steamID);
     }
 
-    private void fetchPricesForDescriptions(RequestQueue queue, ArrayList<DescriptionModel> descriptionModelArrayList, ArrayList<ItemModel> itemModelArrayList, String steamID) {
+    private void fetchPricesForDescriptions(RequestQueue queue, ArrayList<ModelDescription> modelDescriptionArrayList, ArrayList<ModelItem> modelItemArrayList, String steamID) {
         Log.d("DEBUG: ", "Starting fetchPricesForDescriptions now");
 
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
-        for (DescriptionModel descriptionModel : descriptionModelArrayList) {
+        for (ModelDescription modelDescription : modelDescriptionArrayList) {
 
-            if (descriptionModel.isMarketable()) {
+            if (modelDescription.isMarketable()) {
                 fetchPriceForMarketHashName(
                         queue,
                         new VolleyCallback() {
@@ -314,7 +319,7 @@ public class InventoryHandler {
                             public void onSuccess(JSONObject response) {
                                 Log.d("Now getting response to :", "");
                                 try {
-                                    descriptionModel.setLowestPrice(
+                                    modelDescription.setLowestPrice(
                                             BigDecimal.valueOf(
                                                     Long.parseLong("+" + response.getString("lowest_price")
                                                             .replace(",", "")
@@ -323,7 +328,7 @@ public class InventoryHandler {
                                             )
 
                                     );
-                                    descriptionModel.setVolume(
+                                    modelDescription.setVolume(
                                             BigInteger.valueOf(
                                                     Long.parseLong(
                                                             response.getString("volume")
@@ -331,7 +336,7 @@ public class InventoryHandler {
                                                     )
                                             )
                                     );
-                                    descriptionModel.setMedianPrice(
+                                    modelDescription.setMedianPrice(
                                             BigDecimal.valueOf(
                                                     Long.parseLong("+" + response.getString("median_price")
                                                             .replace(",", "")
@@ -340,27 +345,27 @@ public class InventoryHandler {
                                             )
 
                                     );
-                                    Log.d("lowest_price", String.valueOf(descriptionModel.getLowestPrice()));
-                                    Log.d("volume", String.valueOf(descriptionModel.getVolume()));
-                                    Log.d("median_price", String.valueOf(descriptionModel.getMedianPrice()));
+                                    Log.d("lowest_price", String.valueOf(modelDescription.getLowestPrice()));
+                                    Log.d("volume", String.valueOf(modelDescription.getVolume()));
+                                    Log.d("median_price", String.valueOf(modelDescription.getMedianPrice()));
                                 } catch (JSONException e) {
                                     Toast.makeText(context, "Something with the data was wrong, retry or contact developer", Toast.LENGTH_LONG).show();
                                     e.printStackTrace();
                                 }
 
-                                if (descriptionModel == descriptionModelArrayList.get(descriptionModelArrayList.size() - 1)) {
-                                    createJsonFromData(descriptionModelArrayList, itemModelArrayList, steamID);
+                                if (modelDescription == modelDescriptionArrayList.get(modelDescriptionArrayList.size() - 1)) {
+                                    createJsonFromData(modelDescriptionArrayList, modelItemArrayList, steamID);
                                 }
                             }
                         },
-                        descriptionModel.getItemName()
+                        modelDescription.getItemName()
                 );
             } else {
                 // If it is not marketable, set lowest_price, volume and median_price to 0.
-                Log.d("Not marketable description: ", descriptionModel.getItemName());
-                descriptionModel.setLowestPrice(BigDecimal.ZERO);
-                descriptionModel.setVolume(BigInteger.ZERO);
-                descriptionModel.setMedianPrice(BigDecimal.ZERO);
+                Log.d("Not marketable description: ", modelDescription.getItemName());
+                modelDescription.setLowestPrice(BigDecimal.ZERO);
+                modelDescription.setVolume(BigInteger.ZERO);
+                modelDescription.setMedianPrice(BigDecimal.ZERO);
             }
 
             try {
@@ -397,50 +402,50 @@ public class InventoryHandler {
         queue.add(jsonObjectRequest);
     }
 
-    private void createJsonFromData(ArrayList<DescriptionModel> descriptionModelArrayList, ArrayList<ItemModel> itemModelArrayList, String steamID) {
+    private void createJsonFromData(ArrayList<ModelDescription> modelDescriptionArrayList, ArrayList<ModelItem> modelItemArrayList, String steamID) {
         Log.d("DEBUG: ", "Starting createJsonFromData now");
 
         // Creating the metadata object for the current inventory entry:
-        InvMetaDataModel metadata = new InvMetaDataModel(LocalDateTime.now());
+        ModelInvMetaData metadata = new ModelInvMetaData(LocalDateTime.now());
 
         try {
             JSONObject rgDescriptions = new JSONObject();
             JSONObject rgInventory = new JSONObject();
 
-            for (DescriptionModel descriptionModel : descriptionModelArrayList) {
+            for (ModelDescription modelDescription : modelDescriptionArrayList) {
                 // Calculating the current inventory value and creating JSONObjects for items:
-                for (ItemModel itemModel : itemModelArrayList) {
+                for (ModelItem modelItem : modelItemArrayList) {
                     JSONObject newItemEntry = new JSONObject()
-                            .put("classid", itemModel.getClassid())
-                            .put("id", itemModel.getId());
-                    rgInventory.put(String.valueOf(itemModelArrayList.indexOf(itemModel)), newItemEntry);
+                            .put("classid", modelItem.getClassid())
+                            .put("id", modelItem.getId());
+                    rgInventory.put(String.valueOf(modelItemArrayList.indexOf(modelItem)), newItemEntry);
                     Log.d("New item: ", newItemEntry.toString());
                     // Calculating the current inventory value:
-                    if (descriptionModel.getClassid().equals(itemModel.getClassid())) {
-                        metadata.addPortfolioValue(descriptionModel.getLowestPrice());
+                    if (modelDescription.getClassid().equals(modelItem.getClassid())) {
+                        metadata.addPortfolioValue(modelDescription.getLowestPrice());
                     }
                 }
 
                 // Creating the JSONObject
                 JSONObject newDescriptionEntry = new JSONObject()
-                        .put("classid", String.valueOf(descriptionModel.getClassid()))
-                        .put("market_hash_name", descriptionModel.getItemName())
-                        .put("lowest_price", descriptionModel.getLowestPrice())
-                        .put("volume", descriptionModel.getVolume())
-                        .put("median_price", descriptionModel.getMedianPrice());
+                        .put("classid", String.valueOf(modelDescription.getClassid()))
+                        .put("market_hash_name", modelDescription.getItemName())
+                        .put("lowest_price", modelDescription.getLowestPrice())
+                        .put("volume", modelDescription.getVolume())
+                        .put("median_price", modelDescription.getMedianPrice());
 
-                if (descriptionModel.isMarketable()) {
+                if (modelDescription.isMarketable()) {
                     newDescriptionEntry.put("marketable", 1);
                 } else {
                     newDescriptionEntry.put("marketable", 0);
                 }
 
-                if (descriptionModel.isTradable()) {
+                if (modelDescription.isTradable()) {
                     newDescriptionEntry.put("tradable", 1);
                 } else {
                     newDescriptionEntry.put("tradable", 0);
                 }
-                rgDescriptions.put(String.valueOf(descriptionModel.getClassid()), newDescriptionEntry);
+                rgDescriptions.put(String.valueOf(modelDescription.getClassid()), newDescriptionEntry);
                 Log.d("New description: ", newDescriptionEntry.toString());
             }
 

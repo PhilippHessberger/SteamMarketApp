@@ -1,10 +1,10 @@
-package com.example.steammarketapp;
+package com.example.steammarketapp.data_models;
 
-public class InventoryFileModel {
+public class ModelInventoryFile {
 
     private String steamID, filename;
 
-    public InventoryFileModel(String steamID, String filename) {
+    public ModelInventoryFile(String steamID, String filename) {
         this.steamID = steamID;
         this.filename = filename;
     }
