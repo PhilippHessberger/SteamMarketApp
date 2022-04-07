@@ -1,4 +1,4 @@
-package com.example.steammarketapp;
+package com.example.steammarketapp.activities;
 
 import android.os.Bundle;
 
@@ -8,8 +8,10 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.steammarketapp.R;
 import com.example.steammarketapp.adapters.AdapterItem;
 import com.example.steammarketapp.data_models.ModelItem;
+import com.example.steammarketapp.json_handler.InventoryHandler;
 
 import java.util.ArrayList;
 

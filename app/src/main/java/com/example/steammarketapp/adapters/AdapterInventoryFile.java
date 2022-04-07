@@ -11,8 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.steammarketapp.DetailsInventoryFile;
 import com.example.steammarketapp.R;
+import com.example.steammarketapp.activities.DetailsInventoryFile;
 import com.example.steammarketapp.data_models.ModelInventoryFile;
 
 import java.util.ArrayList;

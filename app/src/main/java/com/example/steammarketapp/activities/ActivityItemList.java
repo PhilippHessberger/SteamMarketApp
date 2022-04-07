@@ -5,14 +5,9 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.steammarketapp.InventoryHandler;
+import com.example.steammarketapp.json_handler.InventoryHandler;
 import com.example.steammarketapp.R;
-
-import java.util.ArrayList;
 
 public class ActivityItemList extends AppCompatActivity {
 

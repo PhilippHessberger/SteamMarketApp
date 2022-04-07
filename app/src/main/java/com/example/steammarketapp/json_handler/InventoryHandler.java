@@ -1,4 +1,4 @@
-package com.example.steammarketapp;
+package com.example.steammarketapp.json_handler;
 
 import android.content.Context;
 import android.util.Log;
@@ -11,7 +11,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.steammarketapp.data_models.ModelDescription;
-import com.example.steammarketapp.data_models.ModelInvMetaData;
+import com.example.steammarketapp.data_models.ModelMetaData;
 import com.example.steammarketapp.data_models.ModelInventory;
 import com.example.steammarketapp.data_models.ModelItem;
 import com.example.steammarketapp.data_models.ModelSnapshot;
@@ -406,7 +406,7 @@ public class InventoryHandler {
         Log.d("DEBUG: ", "Starting createJsonFromData now");
 
         // Creating the metadata object for the current inventory entry:
-        ModelInvMetaData metadata = new ModelInvMetaData(LocalDateTime.now());
+        ModelMetaData metadata = new ModelMetaData(LocalDateTime.now());
 
         try {
             JSONObject rgDescriptions = new JSONObject();

@@ -3,12 +3,12 @@ package com.example.steammarketapp.data_models;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class ModelInvMetaData {
+public class ModelMetaData {
 
     private BigDecimal portfolioValue = BigDecimal.ZERO;
     private final LocalDateTime dateOfEntry;
 
-    public ModelInvMetaData(LocalDateTime currentDate) {
+    public ModelMetaData(LocalDateTime currentDate) {
         this.dateOfEntry = currentDate;
     }
 

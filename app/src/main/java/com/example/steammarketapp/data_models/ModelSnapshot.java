@@ -4,14 +4,14 @@ import java.util.ArrayList;
 
 public class ModelSnapshot {
 
-    private ModelInvMetaData metadata;
+    private ModelMetaData metadata;
     private ArrayList<ModelItem> items;
 
     public ModelSnapshot(ArrayList<ModelItem> items) {
         this.items = items;
     }
 
-    public void setMetadata(ModelInvMetaData metadata) {
+    public void setMetadata(ModelMetaData metadata) {
         this.metadata = metadata;
     }
 
@@ -19,7 +19,7 @@ public class ModelSnapshot {
         return items;
     }
 
-    public ModelInvMetaData getMetadata() {
+    public ModelMetaData getMetadata() {
         return metadata;
     }
 }

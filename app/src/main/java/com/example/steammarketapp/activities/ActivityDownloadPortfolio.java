@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.steammarketapp.InventoryHandler;
+import com.example.steammarketapp.json_handler.InventoryHandler;
 import com.example.steammarketapp.R;
 import com.google.android.material.textfield.TextInputLayout;
 

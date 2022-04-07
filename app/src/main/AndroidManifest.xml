@@ -27,7 +27,7 @@
             android:name=".activities.ActivityItemList"
             android:exported="false" />
         <activity
-            android:name=".DetailsInventoryFile"
+            android:name=".activities.DetailsInventoryFile"
             android:exported="false" />
     </application>
 
