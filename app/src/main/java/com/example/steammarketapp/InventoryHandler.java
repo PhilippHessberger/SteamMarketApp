@@ -110,11 +110,7 @@ public class InventoryHandler {
         return null;
     }
 
-    public void getInventoryValue() {
-
-    }
-
-    public ArrayList<ItemModel>[] extractInventoryHistoryFromJsonFile(String filename) {
+    public InventoryModel extractInventoryHistoryFromJsonFile(String filename) {
 
         // TODO: implement error handling
 
@@ -137,51 +133,59 @@ public class InventoryHandler {
 
                     // Extracting data from the local file:
                     JSONObject inventoryHistory = new JSONObject(fileToString);
-                    Iterator<String> inventoryEntries = inventoryHistory.keys();
-                    JSONObject inventoryEntry = inventoryHistory.getJSONObject((String) inventoryEntries.next());
+                    Iterator<String> inventoryEntryKeys = inventoryHistory.keys();
 
-                    ArrayList<ItemModel> itemModelArrayList = new ArrayList<>();
-                    ArrayList<DescriptionModel> descriptionModelArrayList = new ArrayList<>();
+                    InventoryModel newInventory = new InventoryModel();
+                    while (inventoryEntryKeys.hasNext()) {
+                        JSONObject inventoryEntryJson = inventoryHistory.getJSONObject( (String) inventoryEntryKeys.next());
 
-                    // Going through all items:
-                    JSONObject inventory = inventoryEntry.getJSONObject("rgInventory");
-                    Iterator<String> inventoryKeys = inventory.keys();
+                        ArrayList<ItemModel> itemModels = new ArrayList<>();
+                        ArrayList<DescriptionModel> descriptionModels = new ArrayList<>();
 
-                    while (inventoryKeys.hasNext()) {
-                        JSONObject item = inventory.getJSONObject((String) inventoryKeys.next());
-                        itemModelArrayList.add(new ItemModel(
-                                BigInteger.valueOf(Long.parseLong(item.getString("classid"))),
-                                BigInteger.valueOf(Long.parseLong(item.getString("id")))
-                        ));
-                    }
+                        // Getting all items:
+                        JSONObject rgInventory = inventoryEntryJson.getJSONObject("rgInventory");
+                        Iterator<String> rgInventoryKeys = rgInventory.keys();
 
-                    // Going through all descriptions:
-                    JSONObject descriptions = inventoryEntry.getJSONObject("rgDescriptions");
-                    Iterator<String> descriptionKeys = descriptions.keys();
+                        // Going through all items:
+                        while (rgInventoryKeys.hasNext()) {
+                            JSONObject newItem = rgInventory.getJSONObject((String) rgInventoryKeys.next());
+                            itemModels.add(new ItemModel(
+                                    BigInteger.valueOf(Long.parseLong(newItem.getString("classid"))),
+                                    BigInteger.valueOf(Long.parseLong(newItem.getString("id")))
+                            ));
+                        }
 
-                    while (descriptionKeys.hasNext()) {
-                        JSONObject description = descriptions.getJSONObject((String) descriptionKeys.next());
-                        descriptionModelArrayList.add(new DescriptionModel(
-                                BigInteger.valueOf(Long.parseLong(description.getString("classid"))),
-                                description.getString("market_hash_name"),
-                                description.getInt("marketable"),
-                                description.getInt("tradable"),
-                                BigDecimal.valueOf(Long.parseLong(String.valueOf(description.get("lowest_price")))),
-                                BigDecimal.valueOf(Long.parseLong(String.valueOf(description.get("median_price")))),
-                                BigInteger.valueOf(Long.parseLong(description.getString("volume")))
-                        ));
-                    }
+                        // Getting all descriptions:
+                        JSONObject rgDescriptions = inventoryEntryJson.getJSONObject("rgDescriptions");
+                        Iterator<String> rgDescriptionsKeys = rgDescriptions.keys();
 
-                    // Matching items with their description:
-                    for (DescriptionModel descriptionModel : descriptionModelArrayList) {
-                        for (ItemModel itemModel : itemModelArrayList) {
-                            if (descriptionModel.getClassid().equals(itemModel.getClassid())) {
-                                itemModel.setDescriptionModel(descriptionModel);
+                        while (rgDescriptionsKeys.hasNext()) {
+                            JSONObject newDescription = rgDescriptions.getJSONObject((String) rgDescriptionsKeys.next());
+                            descriptionModels.add(new DescriptionModel(
+                                    BigInteger.valueOf(Long.parseLong(newDescription.getString("classid"))),
+                                    newDescription.getString("market_hash_name"),
+                                    newDescription.getInt("marketable"),
+                                    newDescription.getInt("tradable"),
+                                    BigDecimal.valueOf(Long.parseLong(String.valueOf(newDescription.get("lowest_price")))),
+                                    BigDecimal.valueOf(Long.parseLong(String.valueOf(newDescription.get("median_price")))),
+                                    BigInteger.valueOf(Long.parseLong(newDescription.getString("volume")))
+                            ));
+                        }
+
+                        // Matching items with their description:
+                        for (DescriptionModel descriptionModel : descriptionModels) {
+                            for (ItemModel itemModel : itemModels) {
+                                if (descriptionModel.getClassid().equals(itemModel.getClassid())) {
+                                    itemModel.setDescriptionModel(descriptionModel);
+                                }
                             }
                         }
+
+                        InventoryEntryModel newEntry = new InventoryEntryModel(itemModels);
+                        newInventory.addEntry(newEntry);
                     }
 
-                    return null;
+                    return newInventory;
                 }
             }
         } catch (IOException | JSONException e) {
@@ -189,6 +193,24 @@ public class InventoryHandler {
         }
 
         return null;
+    }
+
+    public void updateInventory(String filename) {
+        // TODO: Test the implementation:
+        // TODO: Implement the following steps:
+        // Use filename to open local json and load all previous entries into InventoryModel.
+        InventoryModel inventoryModel = extractInventoryHistoryFromJsonFile(filename);
+        // Use the steamLink to get json for new entry.
+        // TODO: Refactor the way we fetch data from steam.
+        JSONObject newEntry;
+        // Create new InventoryEntryModel from new json.
+        // TODO: Refactor the way we create JSONObjects.
+        InventoryEntryModel inventoryEntryModel = null;
+        // Add new InventoryEntryModel to existing InventoryModel.
+        inventoryModel.addEntry(inventoryEntryModel);
+        // Convert existing InventoryModel into json.
+        // TODO: Refactor the way we create JSONObjects.
+        // Write json to local file.
     }
 
     public void downloadInventoryForSteamID(String steamID) {
@@ -433,18 +455,18 @@ public class InventoryHandler {
 
             JSONObject newEntry = new JSONObject().put(String.valueOf(LocalDateTime.now()), newInventoryHistoryEntry);
 
-            writeJsonToLocalFile(newEntry, steamID);
+            writeJsonToLocalFile(newEntry, ("inv_" + steamID + ".json").replace("/", "_"));
         } catch (JSONException e) {
             Toast.makeText(context, "Something went wrong while storing local data, retry or contact developer", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
 
-    private void writeJsonToLocalFile(JSONObject jsonObject, String steamID) {
+    private void writeJsonToLocalFile(JSONObject jsonObject, String filename) {
         Log.d("DEBUG: ", "Starting writeJsonToLocalFile now");
 
         try {
-            FileOutputStream fileOutputStream = context.openFileOutput(("inv_" + steamID + ".json").replace("/", "_"), Context.MODE_PRIVATE);
+            FileOutputStream fileOutputStream = context.openFileOutput(filename, Context.MODE_PRIVATE);
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
 
             outputStreamWriter.write(jsonObject.toString());
