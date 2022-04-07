@@ -1,19 +1,12 @@
 package com.example.steammarketapp;
 
+import java.util.ArrayList;
+
 public class InventoryModel {
 
-    private String steamID, filename;
+    private ArrayList<InventoryEntryModel> inventoryHistory;
 
-    public InventoryModel(String steamID, String filename) {
-        this.steamID = steamID;
-        this.filename = filename;
-    }
-
-    public String getFilename() {
-        return filename;
-    }
-
-    public String getSteamID() {
-        return steamID;
+    public void addEntry(InventoryEntryModel inventoryModel) {
+        inventoryHistory.add(inventoryModel);
     }
 }

@@ -5,20 +5,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class SelectPortfolioActivity extends AppCompatActivity {
@@ -58,20 +51,20 @@ public class SelectPortfolioActivity extends AppCompatActivity {
 
     private void loadInventories() {
         RecyclerView recyclerViewDownloadedPortfolios = findViewById(R.id.recyclerViewDownloadedPortfolios);
-        InventoryAdapter inventoryAdapter = new InventoryAdapter(SelectPortfolioActivity.this, getInventroyModels());
-        recyclerViewDownloadedPortfolios.setAdapter(inventoryAdapter);
+        InventoryFileAdapter inventoryFileAdapter = new InventoryFileAdapter(SelectPortfolioActivity.this, getInventroyModels());
+        recyclerViewDownloadedPortfolios.setAdapter(inventoryFileAdapter);
         LinearLayoutManager offerLayoutManager = new LinearLayoutManager(SelectPortfolioActivity.this);
         offerLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerViewDownloadedPortfolios.setLayoutManager(offerLayoutManager);
         recyclerViewDownloadedPortfolios.setItemAnimator(new DefaultItemAnimator());
     }
 
-    private ArrayList<InventoryModel> getInventroyModels() {
+    private ArrayList<InventoryFileModel> getInventroyModels() {
         File[] files = this.getFilesDir().listFiles();
-        ArrayList<InventoryModel> fileNames = new ArrayList<>();
+        ArrayList<InventoryFileModel> fileNames = new ArrayList<>();
         if (files.length != 0) {
             for (File file : files) {
-                fileNames.add(new InventoryModel(file.getName(), file.getName()));
+                fileNames.add(new InventoryFileModel(file.getName(), file.getName()));
             }
         }
 
