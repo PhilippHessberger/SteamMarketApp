@@ -12,8 +12,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.steammarketapp.R;
-import com.example.steammarketapp.activities.DetailsInventoryFile;
-import com.example.steammarketapp.data_models.ModelInventoryFile;
+import com.example.steammarketapp.activities.PortfolioFileDetails;
+import com.example.steammarketapp.data_models.PortfolioFileModel;
 
 import java.util.ArrayList;
 
@@ -21,35 +21,35 @@ import java.util.ArrayList;
 Hallo ihr ganzen Spieltypen, spielt nicht soviel, sondern kümmert euch um eure Familien und ganz besonders um eure Mütter!!!
  */
 
-public class AdapterInventoryFile extends RecyclerView.Adapter<AdapterInventoryFile.InventoryViewHolder> {
+public class PortfolioFileAdapter extends RecyclerView.Adapter<PortfolioFileAdapter.InventoryViewHolder> {
 
-    private ArrayList<ModelInventoryFile> modelInventoryFileArrayList;
+    private ArrayList<PortfolioFileModel> portfolioFileModelArrayList;
     private LayoutInflater layoutInflater;
     private Context context;
 
-    public AdapterInventoryFile(Context context, ArrayList<ModelInventoryFile> modelInventoryFileArrayList) {
-        this.modelInventoryFileArrayList = modelInventoryFileArrayList;
+    public PortfolioFileAdapter(Context context, ArrayList<PortfolioFileModel> portfolioFileModelArrayList) {
+        this.portfolioFileModelArrayList = portfolioFileModelArrayList;
         layoutInflater = LayoutInflater.from(context);
         this.context = context;
     }
 
     @NonNull
     @Override
-    public AdapterInventoryFile.InventoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public PortfolioFileAdapter.InventoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = layoutInflater.inflate(R.layout.inventoryfile_cardview, parent, false);
         return new InventoryViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AdapterInventoryFile.InventoryViewHolder holder, int position) {
-        ModelInventoryFile current = modelInventoryFileArrayList.get(position);
+    public void onBindViewHolder(@NonNull PortfolioFileAdapter.InventoryViewHolder holder, int position) {
+        PortfolioFileModel current = portfolioFileModelArrayList.get(position);
         holder.setData(current, position);
         holder.setListeners();
     }
 
     @Override
     public int getItemCount() {
-        return modelInventoryFileArrayList.size();
+        return portfolioFileModelArrayList.size();
     }
 
     public class InventoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -59,7 +59,7 @@ public class AdapterInventoryFile extends RecyclerView.Adapter<AdapterInventoryF
         ConstraintLayout constraintLayout;
 
         private int position;
-        private ModelInventoryFile currentObject;
+        private PortfolioFileModel currentObject;
 
         public InventoryViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -67,7 +67,7 @@ public class AdapterInventoryFile extends RecyclerView.Adapter<AdapterInventoryF
             constraintLayout        = (ConstraintLayout) itemView.findViewById(R.id.layoutInventoryCard);
         }
 
-        public void setData(ModelInventoryFile currentObject, int position) {
+        public void setData(PortfolioFileModel currentObject, int position) {
             this.textViewInventoryCard.setText(currentObject.getSteamID()
                     .replace("inv_", "")
                     .replace(".json", "")
@@ -80,12 +80,12 @@ public class AdapterInventoryFile extends RecyclerView.Adapter<AdapterInventoryF
         }
 
         public void setListeners() {
-            constraintLayout.setOnClickListener(AdapterInventoryFile.InventoryViewHolder.this);
+            constraintLayout.setOnClickListener(PortfolioFileAdapter.InventoryViewHolder.this);
         }
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(context, DetailsInventoryFile.class);
+            Intent intent = new Intent(context, PortfolioFileDetails.class);
             intent.putExtra("inventory", currentObject.getFilename());
             context.startActivity(intent);
         }

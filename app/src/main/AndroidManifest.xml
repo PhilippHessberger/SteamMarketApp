@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SteamMarketApp"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activities.ActivitySelectPortfolio"
+        <activity android:name=".activities.SelectPortfolioActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,13 +21,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.ActivityDownloadPortfolio"
+            android:name=".activities.DownloadPortfolioActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.ActivityItemList"
+            android:name=".activities.ItemListActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.DetailsInventoryFile"
+            android:name=".activities.PortfolioFileDetails"
             android:exported="false" />
     </application>
 
