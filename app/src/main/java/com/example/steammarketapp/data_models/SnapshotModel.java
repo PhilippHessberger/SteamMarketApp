@@ -5,18 +5,18 @@ import java.util.ArrayList;
 public class SnapshotModel {
 
     private MetaDataModel metadata;
-    private ArrayList<ItemModel> items;
+    private ArrayList<DescriptionModel> descriptions;
 
-    public SnapshotModel(ArrayList<ItemModel> items) {
-        this.items = items;
+    public SnapshotModel(ArrayList<DescriptionModel> descriptions) {
+        this.descriptions = descriptions;
     }
 
     public void setMetadata(MetaDataModel metadata) {
         this.metadata = metadata;
     }
 
-    public ArrayList<ItemModel> getItems() {
-        return items;
+    public ArrayList<DescriptionModel> getDescriptions() {
+        return descriptions;
     }
 
     public MetaDataModel getMetadata() {

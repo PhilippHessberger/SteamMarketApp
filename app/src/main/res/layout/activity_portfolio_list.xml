@@ -32,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/elements"
-        android:text="@string/delete_list"
+        android:text="@string/delete_all"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/buttonRefreshPortfolioList"
         app:layout_constraintStart_toEndOf="@+id/buttonAddPortfolio" />

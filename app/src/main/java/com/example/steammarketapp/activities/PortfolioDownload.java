@@ -3,7 +3,6 @@ package com.example.steammarketapp.activities;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -14,12 +13,12 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Objects;
 
-public class DownloadPortfolioActivity extends AppCompatActivity {
+public class PortfolioDownload extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.downloadportfolio_activity);
+        setContentView(R.layout.activity_portfolio_download);
 
         TextInputLayout textInputLayoutEnterSteamID = (TextInputLayout) findViewById(R.id.textInputLayoutEnterSteamID);
 
@@ -28,11 +27,11 @@ public class DownloadPortfolioActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (Objects.requireNonNull(textInputLayoutEnterSteamID.getEditText()).getText() != null) {
-                    PortfolioHandler portfolioHandler = new PortfolioHandler(DownloadPortfolioActivity.this);
+                    PortfolioHandler portfolioHandler = new PortfolioHandler(PortfolioDownload.this);
                     portfolioHandler.createPortfolio(String.valueOf(textInputLayoutEnterSteamID.getEditText().getText()));
                     //finish();
                 } else {
-                    Toast.makeText(DownloadPortfolioActivity.this, "Please enter a SteamID", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PortfolioDownload.this, "Please enter a SteamID", Toast.LENGTH_SHORT).show();
                 }
             }
         });

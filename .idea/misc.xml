@@ -3,6 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Repositories/SteamMarketApp/app/src/main/res/layout/activity_portfolio_menu.xml" value="0.5647644927536232" />
+        <entry key="..\:/Repositories/SteamMarketApp/app/src/main/res/layout/cardview_portfolio.xml" value="0.5647644927536232" />
         <entry key="..\:/Repositories/SteamMarketApp/app/src/main/res/layout/downloadportfolio_activity.xml" value="0.5005208333333333" />
         <entry key="..\:/Repositories/SteamMarketApp/app/src/main/res/layout/inventory_details.xml" value="0.48541666666666666" />
         <entry key="..\:/Repositories/SteamMarketApp/app/src/main/res/layout/inventoryfile_cardview.xml" value="0.575" />

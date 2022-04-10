@@ -9,7 +9,7 @@
     <string name="steamIDExample4">4. Take a seat, this will take some time. 4 Seconds for every item different to the ones before, because we don\'t want to get banned form valve servers for sending too many requests.</string>
     <!-- Item List -->
     <string name="refresh">Refresh</string>
-    <string name="delete_list">Delete List</string>
+    <string name="delete_all">Delete all</string>
     <string name="add">Add</string>
     <!-- Item CardView -->
     <string name="not_found">Not found</string>
@@ -19,4 +19,6 @@
     <string name="item_price_median">Price Median:</string>
     <string name="item_amount">Amount:</string>
     <string name="currency">€</string>
+    <!-- Portfolio Overview -->
+    <string name="overview_show_item_list">Show Item List</string>
 </resources>
