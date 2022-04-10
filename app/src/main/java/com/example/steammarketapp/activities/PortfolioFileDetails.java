@@ -9,13 +9,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.steammarketapp.R;
-import com.example.steammarketapp.adapters.AdapterItem;
-import com.example.steammarketapp.data_models.ModelItem;
-import com.example.steammarketapp.json_handler.InventoryHandler;
+import com.example.steammarketapp.adapters.DescriptionAdapter;
+import com.example.steammarketapp.data_models.DescriptionModel;
+import com.example.steammarketapp.data_handler.PortfolioHandler;
 
 import java.util.ArrayList;
 
-public class DetailsInventoryFile extends AppCompatActivity {
+public class PortfolioFileDetails extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -24,13 +24,13 @@ public class DetailsInventoryFile extends AppCompatActivity {
 
         String inventory = getIntent().getExtras().getString("inventory");
 
-        InventoryHandler inventoryHandler = new InventoryHandler(DetailsInventoryFile.this);
-        ArrayList<ModelItem> modelItemArrayList = inventoryHandler.extractLastInventoryHistoryEntryFromJsonFile(inventory);
+        PortfolioHandler portfolioHandler = new PortfolioHandler(PortfolioFileDetails.this);
+        ArrayList<DescriptionModel> descriptions = portfolioHandler.extractLastSnapshot(inventory);
 
         RecyclerView inventoryDetailsRecyclerView = findViewById(R.id.inventoryDetailsRecyclerView);
-        AdapterItem adapterItem = new AdapterItem(DetailsInventoryFile.this, modelItemArrayList);
-        inventoryDetailsRecyclerView.setAdapter(adapterItem);
-        LinearLayoutManager offerLayoutManager = new LinearLayoutManager(DetailsInventoryFile.this);
+        DescriptionAdapter descriptionAdapter = new DescriptionAdapter(PortfolioFileDetails.this, descriptions);
+        inventoryDetailsRecyclerView.setAdapter(descriptionAdapter);
+        LinearLayoutManager offerLayoutManager = new LinearLayoutManager(PortfolioFileDetails.this);
         offerLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         inventoryDetailsRecyclerView.setLayoutManager(offerLayoutManager);
         inventoryDetailsRecyclerView.setItemAnimator(new DefaultItemAnimator());

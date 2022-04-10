@@ -8,11 +8,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.steammarketapp.json_handler.InventoryHandler;
+import com.example.steammarketapp.data_handler.PortfolioHandler;
 import com.example.steammarketapp.R;
 import com.google.android.material.textfield.TextInputLayout;
 
-public class ActivityDownloadPortfolio extends AppCompatActivity {
+import java.util.Objects;
+
+public class DownloadPortfolioActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,14 +27,12 @@ public class ActivityDownloadPortfolio extends AppCompatActivity {
         buttonGetPortfolioData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (textInputLayoutEnterSteamID.getEditText().getText() != null) {
-                    // TODO: Now the data needs to be downloaded
-                    Log.d("DEBUG: ", "Starting buttonGetPortfolioData onClick now");
-                    InventoryHandler inventoryHandler = new InventoryHandler(ActivityDownloadPortfolio.this);
-                    inventoryHandler.downloadInventoryForSteamID(String.valueOf(textInputLayoutEnterSteamID.getEditText().getText()));
-                    finish();
+                if (Objects.requireNonNull(textInputLayoutEnterSteamID.getEditText()).getText() != null) {
+                    PortfolioHandler portfolioHandler = new PortfolioHandler(DownloadPortfolioActivity.this);
+                    portfolioHandler.createPortfolio(String.valueOf(textInputLayoutEnterSteamID.getEditText().getText()));
+                    //finish();
                 } else {
-                    Toast.makeText(ActivityDownloadPortfolio.this, "Please enter a SteamID", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DownloadPortfolioActivity.this, "Please enter a SteamID", Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -4,14 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/purple_700"
+    android:background="@color/background"
     android:padding="8dp">
 
     <Button
-        android:id="@+id/buttonGoToDownloadPortfolioActivity"
+        android:id="@+id/buttonAddPortfolio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="add new inv"
+        android:backgroundTint="@color/elements"
+        android:text="@string/add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -20,17 +21,28 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
-        android:background="@color/purple_500"
-        app:layout_constraintBottom_toTopOf="@+id/buttonGoToDownloadPortfolioActivity"
+        android:background="@color/elements"
+        app:layout_constraintBottom_toTopOf="@+id/buttonAddPortfolio"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/buttonDeletePortfolioList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="refresh list"
+        android:backgroundTint="@color/elements"
+        android:text="@string/delete_list"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/buttonRefreshPortfolioList"
+        app:layout_constraintStart_toEndOf="@+id/buttonAddPortfolio" />
+
+    <Button
+        android:id="@+id/buttonRefreshPortfolioList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/elements"
+        android:text="@string/refresh"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

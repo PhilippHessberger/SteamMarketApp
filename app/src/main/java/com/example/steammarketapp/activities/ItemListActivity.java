@@ -6,10 +6,10 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.steammarketapp.json_handler.InventoryHandler;
+import com.example.steammarketapp.data_handler.PortfolioHandler;
 import com.example.steammarketapp.R;
 
-public class ActivityItemList extends AppCompatActivity {
+public class ItemListActivity extends AppCompatActivity {
 
     // TODO: Check if this app conforms to Steam TOS at some point!!!
 
@@ -18,7 +18,7 @@ public class ActivityItemList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.itemlist_activity);
 
-        InventoryHandler inventoryHandler = new InventoryHandler(this);
+        PortfolioHandler portfolioHandler = new PortfolioHandler(this);
         String inventoryURL = "https://steamcommunity.com/id/" + getIntent().getExtras().getString("steamID") + "/inventory/json/730/2";
 
         Button itemlistButtonRefresh = (Button) findViewById(R.id.itemlistButtonRefresh);

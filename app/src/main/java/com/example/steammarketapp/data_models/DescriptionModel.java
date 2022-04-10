@@ -3,22 +3,23 @@ package com.example.steammarketapp.data_models;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class ModelDescription {
+public class DescriptionModel {
 
     private BigInteger classid, volume;
+    private BigInteger amount = new BigInteger(String.valueOf(0));
     private String itemName;
     private boolean marketable, tradable;
     // Prices are saved in cents because it is easier to calculate stuff that way.
     private BigDecimal lowestPrice, medianPrice;
 
-    public ModelDescription(BigInteger classid, String itemName, int marketable, int tradable) {
+    public DescriptionModel(BigInteger classid, String itemName, int marketable, int tradable) {
         this.classid = classid;
         this.itemName = itemName;
         this.marketable = (marketable == 1);
         this.tradable = (tradable == 1);
     }
 
-    public ModelDescription(BigInteger classid, String itemName, int marketable, int tradable, BigDecimal lowestPrice, BigDecimal medianPrice, BigInteger volume) {
+    public DescriptionModel(BigInteger classid, String itemName, int marketable, int tradable, BigDecimal lowestPrice, BigDecimal medianPrice, BigInteger volume) {
         this.classid = classid;
         this.itemName = itemName;
         this.marketable = (marketable == 1);
@@ -26,6 +27,17 @@ public class ModelDescription {
         this.lowestPrice = lowestPrice;
         this.medianPrice = medianPrice;
         this.volume = volume;
+    }
+
+    public DescriptionModel(BigInteger classid, String itemName, int marketable, int tradable, BigDecimal lowestPrice, BigDecimal medianPrice, BigInteger volume, BigInteger amount) {
+        this.classid = classid;
+        this.itemName = itemName;
+        this.marketable = (marketable == 1);
+        this.tradable = (tradable == 1);
+        this.lowestPrice = lowestPrice;
+        this.medianPrice = medianPrice;
+        this.volume = volume;
+        this.amount = amount;
     }
 
     public BigInteger getClassid() {
@@ -66,5 +78,17 @@ public class ModelDescription {
 
     public void setVolume(BigInteger volume) {
         this.volume = volume;
+    }
+
+    public BigInteger getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigInteger amount) {
+        this.amount = amount;
+    }
+
+    public void addOne() {
+        this.amount = amount.add(BigInteger.valueOf(1));
     }
 }
