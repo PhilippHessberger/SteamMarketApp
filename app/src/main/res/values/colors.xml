@@ -9,6 +9,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="area">#737373</color>
-    <color name="elements">#494949</color>
+    <color name="element">#494949</color>
     <color name="background">#303030</color>
 </resources>

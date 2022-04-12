@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -44,7 +45,6 @@ public class PortfolioHandler {
     // Methods for downloading .json and creating new portfolio:
     public void createPortfolio(String steamID) {
         Log.d("DEBUG: ", "Starting downloadInventoryForSteamID now");
-        // This function will create a new file with the contents of a steam inventory.
 
         // Check for existing files:
         if (isInventoryFilePresent(steamID) != null) {
@@ -69,7 +69,7 @@ public class PortfolioHandler {
         return null;
     }
 
-    private void getSteamInventoryFormURL(PortfolioModel portfolio) {
+    public void getSteamInventoryFormURL(PortfolioModel portfolio) {
         // Sends a request for the inventory of the steamID to steam and hands on the response.
         Log.d("DEBUG: ", "Starting getSteamInventoryFormURL now");
 
@@ -145,7 +145,6 @@ public class PortfolioHandler {
             for (ItemModel itemModel : items) {
                 if (descriptionModel.getClassid().equals(itemModel.getClassid())) {
                     descriptionModel.addOne();
-                    Log.d("DEBUG: ", String.valueOf(descriptionModel.getAmount()));
                 }
             }
         }
@@ -196,7 +195,13 @@ public class PortfolioHandler {
                                 Toast.makeText(context, ((descriptions.size() - descriptions.indexOf(descriptionModel)) * 4) + " secs estimated time left", Toast.LENGTH_SHORT).show();
 
                                 if (descriptionModel == descriptions.get(descriptions.size() - 1)) {
-                                    portfolio.addSnapshot(new SnapshotModel(descriptions));
+                                    Collections.sort(descriptions);
+                                    portfolio.addSnapshot(
+                                            new SnapshotModel(
+                                                    filterNotMarketable(descriptions)
+                                            )
+                                    );
+
                                     writeJsonToLocalFile(Objects.requireNonNull(createJsonFromData(portfolio)), portfolio);
                                 }
                             }
@@ -251,7 +256,7 @@ public class PortfolioHandler {
             Log.d("DEBUG", "Updating existing portfolio.");
 
             // Portfolio from method parameters is just the new snapshot, the old snapshots need to be loaded, added and then saved in a file.
-            updatePortfolio(newPortfolio.getFilename());
+            // updatePortfolio(newPortfolio.getFilename());
             PortfolioModel oldPortfolio = loadPortfolio(newPortfolio.getFilename());
             for (SnapshotModel snapshot : newPortfolio.getSnapshots()) {
                 oldPortfolio.addSnapshot(snapshot);
@@ -272,22 +277,25 @@ public class PortfolioHandler {
             e.printStackTrace();
         }
 
-        ((Activity) context).finish();
+        // Reload activity, if the portfolio got updated; Finish, if it got created:
+        if (newPortfolio.getSnapshots().size() > 1) {
+            ((Activity) context).recreate();
+        } else {
+            ((Activity) context).finish();
+        }
     }
 
     private JSONObject createJsonFromData(PortfolioModel portfolio) {
         Log.d("DEBUG: ", "Starting createJsonFromData now");
 
-        // Creates a JSONObject with all descriptions and metadata.
-        MetaDataModel metadata = new MetaDataModel(LocalDateTime.now());
-
+        // Creates a JSONObject with a portfolio.
         try {
             JSONObject JSONPortfolio = new JSONObject();
 
             for (SnapshotModel snapshot : portfolio.getSnapshots()) {
                 JSONObject JSONDescriptions = new JSONObject();
 
-                MetaDataModel metaData = new MetaDataModel(LocalDateTime.now());
+                MetaDataModel metaData = new MetaDataModel(LocalDateTime.now(), portfolio.getSnapshots().indexOf(snapshot));
 
                 for (DescriptionModel description : snapshot.getDescriptions()) {
                     metaData.addSnapshotValue(description.getLowestPrice().multiply(new BigDecimal(description.getAmount())));
@@ -329,48 +337,6 @@ public class PortfolioHandler {
 
             return JSONPortfolio;
 
-            /*
-            JSONObject JSONDescriptions = new JSONObject();
-
-            // Calculating current portfolio value:
-            for (DescriptionModel description : descriptions) {
-                metadata.addSnapshotValue(description.getLowestPrice().multiply(new BigDecimal(description.getAmount())));
-
-                // Creating the JSONObject
-                JSONObject newDescription = new JSONObject()
-                        .put("classid", String.valueOf(description.getClassid()))
-                        .put("market_hash_name", description.getItemName())
-                        .put("lowest_price", description.getLowestPrice())
-                        .put("volume", description.getVolume())
-                        .put("median_price", description.getMedianPrice())
-                        .put("amount", description.getAmount());
-
-                if (description.isMarketable()) {
-                    newDescription.put("marketable", 1);
-                } else {
-                    newDescription.put("marketable", 0);
-                }
-
-                if (description.isTradable()) {
-                    newDescription.put("tradable", 1);
-                } else {
-                    newDescription.put("tradable", 0);
-                }
-
-                JSONDescriptions.put(String.valueOf(description.getClassid()), newDescription);
-            }
-
-            JSONObject jsonMetadata = new JSONObject()
-                    .put("snapshotValue", metadata.getSnapshotValue())
-                    .put("dateOfEntry", metadata.getDateOfEntry());
-
-            JSONObject snapshot = new JSONObject()
-                    .put("metadata", jsonMetadata)
-                    .put("JSONDescriptions", JSONDescriptions);
-
-            return new JSONObject().put(String.valueOf(LocalDateTime.now()), snapshot);
-             */
-
         } catch (JSONException e) {
             Toast.makeText(context, "Something went wrong while storing local data, retry or contact developer", Toast.LENGTH_LONG).show();
             e.printStackTrace();
@@ -379,7 +345,7 @@ public class PortfolioHandler {
     }
 
     // Methods for reading saved .json and parsing for adapter:
-    public SnapshotModel loadLastSnapshot(String filename) {
+    public SnapshotModel loadSnapshots(String filename) {
         Log.d("DEBUG: ", "Starting extractLastInventoryHistoryEntryFromJsonFile now");
 
         // TODO: Don't return descriptions, but a snapshot instead.
@@ -423,7 +389,7 @@ public class PortfolioHandler {
 
                     // Extracting MetaData:
                     JSONObject JSONMetaData = JSONSnapshot.getJSONObject("MetaData");
-                    MetaDataModel metaData = new MetaDataModel(LocalDateTime.parse(JSONMetaData.getString("dateOfEntry")));
+                    MetaDataModel metaData = new MetaDataModel(LocalDateTime.parse(JSONMetaData.getString("dateOfEntry")), -1);
                     metaData.setSnapshotValue(new BigDecimal(JSONMetaData.getString("snapshotValue")));
                     SnapshotModel snapshot = new SnapshotModel(filterNotMarketable(descriptions));
                     snapshot.setMetadata(metaData);
@@ -464,20 +430,35 @@ public class PortfolioHandler {
                     String fileToString = new String(inputBuffer);
 
                     // Convert from String to JSONObjects to DataModels:
-                    PortfolioModel portfolio = new PortfolioModel(filename);
+                    PortfolioModel portfolio = new PortfolioModel(filename
+                            .replace("portfolio_", "")
+                            .replace("-", "/")
+                            .replace(".json", "")
+                    );
                     JSONObject JSONPortfolio = new JSONObject(fileToString);
                     Iterator<String> snapshotKeys = JSONPortfolio.keys();
 
                     // Iterating over all snapshots:
                     while (snapshotKeys.hasNext()) {
-                        JSONObject JSONSnapshot = JSONPortfolio.getJSONObject(snapshotKeys.next());
-                        Iterator<String> descriptionKeys = JSONSnapshot.keys();
+                        String nextSnapshotKey = snapshotKeys.next();
+                        Log.d("DEBUG", "Snapshot Key: " + nextSnapshotKey);
+                        JSONObject JSONSnapshot = JSONPortfolio.getJSONObject(nextSnapshotKey);
 
+                        // Converting MetaData:
+                        JSONObject JSONMetaData = JSONSnapshot.getJSONObject("MetaData");
+                        MetaDataModel metaData = new MetaDataModel(LocalDateTime.parse(JSONMetaData.getString("dateOfEntry")), Integer.parseInt(nextSnapshotKey));
+                        metaData.setSnapshotValue(new BigDecimal(JSONMetaData.getString("snapshotValue")));
+
+                        // Converting Descriptions:
                         ArrayList<DescriptionModel> descriptions = new ArrayList<>();
+                        JSONObject JSONDescriptions = JSONSnapshot.getJSONObject("JSONDescriptions");
+                        Iterator<String> descriptionKeys = JSONDescriptions.keys();
 
                         // Iterating over all descriptions of current snapshot:
                         while (descriptionKeys.hasNext()) {
-                            JSONObject JSONDescription = JSONSnapshot.getJSONObject(descriptionKeys.next());
+                            String nextDescriptionKey = descriptionKeys.next();
+                            Log.d("DEBUG", "Description Key: " + nextDescriptionKey);
+                            JSONObject JSONDescription = JSONDescriptions.getJSONObject(nextDescriptionKey);
                             descriptions.add(new DescriptionModel(
                                     BigInteger.valueOf(Long.parseLong(JSONDescription.getString("classid"))),
                                     JSONDescription.getString("market_hash_name"),
@@ -489,7 +470,11 @@ public class PortfolioHandler {
                                     BigInteger.valueOf(Long.parseLong(JSONDescription.getString("amount")))
                             ));
                         }
-                        portfolio.addSnapshot(new SnapshotModel(descriptions));
+
+                        // Building Snapshot:
+                        SnapshotModel snapshot = new SnapshotModel(descriptions);
+                        snapshot.setMetadata(metaData);
+                        portfolio.addSnapshot(snapshot);
                     }
                     return portfolio;
                 }
@@ -498,19 +483,6 @@ public class PortfolioHandler {
             e.printStackTrace();
         }
         return null;
-    }
-
-    // Unused methods:
-    public void updatePortfolio(String filename) {
-        // TODO: implement comments:
-        // Use filename to open local json and load all previous entries into PortfolioModel.
-        PortfolioModel portfolio = loadPortfolio(filename);
-        // Use the steamLink to get json for new entry.
-        getSteamInventoryFormURL(portfolio);
-        // Create new InventoryEntryModel from new json.
-        // Add new InventoryEntryModel to existing InventoryModel.
-        // Convert existing InventoryModel into json.
-        // Write json to local file.
     }
 
     // I hate this method:

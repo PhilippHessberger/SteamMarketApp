@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.steammarketapp.R;
 import com.example.steammarketapp.activities.DescriptionList;
+import com.example.steammarketapp.activities.PortfolioOverview;
 import com.example.steammarketapp.data_models.PortfolioFileModel;
 
 import java.io.File;
@@ -25,14 +26,14 @@ Hallo ihr ganzen Spieltypen, spielt nicht soviel, sondern kümmert euch um eure 
 
 public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.InventoryViewHolder> {
 
-    private final File[] files;
     private LayoutInflater layoutInflater;
+    private final File[] files;
     private Context context;
 
     public PortfolioAdapter(Context context, File[] files) {
-        this.files = files;
-        layoutInflater = LayoutInflater.from(context);
+        this.layoutInflater = LayoutInflater.from(context);
         this.context = context;
+        this.files = files;
     }
 
     @NonNull
@@ -87,8 +88,8 @@ public class PortfolioAdapter extends RecyclerView.Adapter<PortfolioAdapter.Inve
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(context, DescriptionList.class);
-            intent.putExtra("inventory", currentObject.getName());
+            Intent intent = new Intent(context, PortfolioOverview.class);
+            intent.putExtra("portfolio_filename", currentObject.getName());
             context.startActivity(intent);
         }
     }

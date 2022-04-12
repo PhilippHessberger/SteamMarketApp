@@ -7,9 +7,11 @@ public class MetaDataModel {
 
     private BigDecimal snapshotValue = BigDecimal.ZERO;
     private final LocalDateTime dateOfEntry;
+    private final int index;
 
-    public MetaDataModel(LocalDateTime currentDate) {
+    public MetaDataModel(LocalDateTime currentDate, int index) {
         this.dateOfEntry = currentDate;
+        this.index = index;
     }
 
     public void addSnapshotValue(BigDecimal addedValue) {
@@ -26,5 +28,9 @@ public class MetaDataModel {
 
     public void setSnapshotValue(BigDecimal snapshotValue) {
         this.snapshotValue = snapshotValue;
+    }
+
+    public int getSnapshotIndex() {
+        return index;
     }
 }

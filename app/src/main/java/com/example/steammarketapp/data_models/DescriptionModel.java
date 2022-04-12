@@ -3,12 +3,13 @@ package com.example.steammarketapp.data_models;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class DescriptionModel {
+public class DescriptionModel implements Comparable<DescriptionModel> {
 
-    private BigInteger classid, volume;
+    private final BigInteger classid;
+    private BigInteger volume;
     private BigInteger amount = new BigInteger(String.valueOf(0));
-    private String itemName;
-    private boolean marketable, tradable;
+    private final String itemName;
+    private final boolean marketable, tradable;
     // Prices are saved in cents because it is easier to calculate stuff that way.
     private BigDecimal lowestPrice, medianPrice;
 
@@ -17,16 +18,6 @@ public class DescriptionModel {
         this.itemName = itemName;
         this.marketable = (marketable == 1);
         this.tradable = (tradable == 1);
-    }
-
-    public DescriptionModel(BigInteger classid, String itemName, int marketable, int tradable, BigDecimal lowestPrice, BigDecimal medianPrice, BigInteger volume) {
-        this.classid = classid;
-        this.itemName = itemName;
-        this.marketable = (marketable == 1);
-        this.tradable = (tradable == 1);
-        this.lowestPrice = lowestPrice;
-        this.medianPrice = medianPrice;
-        this.volume = volume;
     }
 
     public DescriptionModel(BigInteger classid, String itemName, int marketable, int tradable, BigDecimal lowestPrice, BigDecimal medianPrice, BigInteger volume, BigInteger amount) {
@@ -90,5 +81,13 @@ public class DescriptionModel {
 
     public void addOne() {
         this.amount = amount.add(BigInteger.valueOf(1));
+    }
+
+    @Override
+    public int compareTo(DescriptionModel description) {
+        BigDecimal val1 = this.lowestPrice.multiply(new BigDecimal(this.amount));
+        BigDecimal val2 = description.lowestPrice.multiply(new BigDecimal(description.amount));
+
+        return val2.compareTo(val1);
     }
 }

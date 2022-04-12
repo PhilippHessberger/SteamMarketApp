@@ -80,7 +80,7 @@ public class DescriptionAdapter extends RecyclerView.Adapter<DescriptionAdapter.
         }
 
         private String calcTotalPrice(BigInteger amount, BigDecimal price) {
-            // Multiplying AND formatting:
+            // It is multiplying AND formatting:
             return new BigDecimal(amount).multiply(price).movePointLeft(2).toString();
         }
     }

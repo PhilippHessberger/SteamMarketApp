@@ -20,5 +20,11 @@
     <string name="item_amount">Amount:</string>
     <string name="currency">€</string>
     <!-- Portfolio Overview -->
+    <string name="overview_name">Portfolio:</string>
+    <string name="overview_value">Value:</string>
     <string name="overview_show_item_list">Show Item List</string>
+    <string name="overview_update_portfolio">Update Portfolio</string>
+    <!-- Snapshot Overview -->
+    <string name="snapshot_index">Snapshot Nr.:</string>
+    <string name="snapshot_value">Value:</string>
 </resources>
