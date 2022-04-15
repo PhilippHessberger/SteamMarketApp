@@ -153,6 +153,9 @@ public class PortfolioHandler {
     private void fetchPricesForDescriptions(RequestQueue queue, ArrayList<DescriptionModel> descriptions, PortfolioModel portfolio) {
         Log.d("DEBUG: ", "Starting fetchPricesForDescriptions now");
 
+        // Apply all filters here, not while we wait for responses:
+        filterNoGraffiti(filterNotMarketable(descriptions));
+
         for (DescriptionModel descriptionModel : descriptions) {
 
             if (descriptionModel.isMarketable()) {
@@ -205,9 +208,7 @@ public class PortfolioHandler {
                                 if (descriptionModel == descriptions.get(descriptions.size() - 1)) {
                                     Collections.sort(descriptions);
                                     portfolio.addSnapshot(
-                                            new SnapshotModel(
-                                                    filterNoGraffiti(filterNotMarketable(descriptions))
-                                            )
+                                            new SnapshotModel(descriptions)
                                     );
 
                                     writeJsonToLocalFile(Objects.requireNonNull(createJsonFromData(portfolio)), portfolio);
