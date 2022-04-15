@@ -154,7 +154,8 @@ public class PortfolioHandler {
         Log.d("DEBUG: ", "Starting fetchPricesForDescriptions now");
 
         // Apply all filters here, not while we wait for responses:
-        filterNoGraffiti(filterNotMarketable(descriptions));
+        filterNotMarketable(descriptions);
+        filterNoGraffiti(descriptions);
 
         for (DescriptionModel descriptionModel : descriptions) {
 
@@ -439,12 +440,16 @@ public class PortfolioHandler {
     }
 
     private ArrayList<DescriptionModel> filterNoGraffiti(ArrayList<DescriptionModel> descriptions) {
+        //Log.d("Removing", description.getItemName());
+        /*
         for (DescriptionModel description : descriptions) {
             if (description.getItemName().contains("Sealed") && description.getItemName().contains("Graffiti")) {
-                Log.d("Removing", description.getItemName());
+                //Log.d("Removing", description.getItemName());
                 descriptions.remove(description);
             }
         }
+         */
+        descriptions.removeIf(description -> description.getItemName().contains("Sealed") && description.getItemName().contains("Graffiti"));
         return descriptions;
     }
 
