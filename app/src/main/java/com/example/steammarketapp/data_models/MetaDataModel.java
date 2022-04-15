@@ -5,22 +5,32 @@ import java.time.LocalDateTime;
 
 public class MetaDataModel {
 
-    private BigDecimal portfolioValue = BigDecimal.ZERO;
+    private BigDecimal snapshotValue = BigDecimal.ZERO;
     private final LocalDateTime dateOfEntry;
+    private final int index;
 
-    public MetaDataModel(LocalDateTime currentDate) {
+    public MetaDataModel(LocalDateTime currentDate, int index) {
         this.dateOfEntry = currentDate;
+        this.index = index;
     }
 
-    public void addPortfolioValue(BigDecimal addedValue) {
-        this.portfolioValue = (this.portfolioValue.add(addedValue));
+    public void addSnapshotValue(BigDecimal addedValue) {
+        this.snapshotValue = (this.snapshotValue.add(addedValue));
     }
 
-    public BigDecimal getPortfolioValue() {
-        return portfolioValue;
+    public BigDecimal getSnapshotValue() {
+        return snapshotValue;
     }
 
     public LocalDateTime getDateOfEntry() {
         return dateOfEntry;
+    }
+
+    public void setSnapshotValue(BigDecimal snapshotValue) {
+        this.snapshotValue = snapshotValue;
+    }
+
+    public int getSnapshotIndex() {
+        return index;
     }
 }

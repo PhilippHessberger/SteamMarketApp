@@ -11,7 +11,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.steammarketapp.activities.DownloadPortfolioActivity;
 import com.example.steammarketapp.data_models.DescriptionModel;
 import com.example.steammarketapp.data_models.MetaDataModel;
 import com.example.steammarketapp.data_models.PortfolioModel;
@@ -31,6 +30,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
 
@@ -45,14 +45,14 @@ public class PortfolioHandler {
     // Methods for downloading .json and creating new portfolio:
     public void createPortfolio(String steamID) {
         Log.d("DEBUG: ", "Starting downloadInventoryForSteamID now");
-        // This function will create a new file with the contents of a steam inventory.
 
         // Check for existing files:
         if (isInventoryFilePresent(steamID) != null) {
             Toast.makeText(context, "There is already a Scanned Portfolio of this Inventory.", Toast.LENGTH_LONG).show();
         } else {
             // create new file and add new content:
-            getSteamInventoryFormURL(steamID);
+            PortfolioModel portfolio = new PortfolioModel(steamID);
+            getSteamInventoryFormURL(portfolio);
         }
     }
 
@@ -69,11 +69,11 @@ public class PortfolioHandler {
         return null;
     }
 
-    private void getSteamInventoryFormURL(String steamID) {
+    public void getSteamInventoryFormURL(PortfolioModel portfolio) {
         // Sends a request for the inventory of the steamID to steam and hands on the response.
         Log.d("DEBUG: ", "Starting getSteamInventoryFormURL now");
 
-        String inventoryURL = "https://steamcommunity.com/" + steamID + "/inventory/json/730/2";
+        String inventoryURL = "https://steamcommunity.com/" + portfolio.getSteamID() + "/inventory/json/730/2";
 
         RequestQueue queue = Volley.newRequestQueue(context);
 
@@ -82,7 +82,7 @@ public class PortfolioHandler {
                     @Override
                     public void onResponse(JSONObject response) {
                         // Call method to extract data from json:
-                        extractDataFromJson(response, queue, steamID);
+                        extractDataFromJson(response, queue, portfolio);
                     }
                 },
                 new Response.ErrorListener() {
@@ -96,7 +96,7 @@ public class PortfolioHandler {
         queue.add(jsonObjectRequest);
     }
 
-    private void extractDataFromJson(JSONObject response, RequestQueue queue, String steamID) {
+    private void extractDataFromJson(JSONObject response, RequestQueue queue, PortfolioModel portfolio) {
         // Input is the JSONObject of a Steam-Inventory. Creates Model-Lists from the Json.
         Log.d("DEBUG: ", "Starting extractDataFromJson now");
 
@@ -136,7 +136,7 @@ public class PortfolioHandler {
         // Counting amount of items per description:
         matchItemsAndDescriptions(descriptions, items);
         // Fetching Prices for Descriptions:
-        fetchPricesForDescriptions(queue, descriptions, steamID);
+        fetchPricesForDescriptions(queue, descriptions, portfolio);
     }
 
     private void matchItemsAndDescriptions(ArrayList<DescriptionModel> descriptions, ArrayList<ItemModel> items) {
@@ -145,13 +145,12 @@ public class PortfolioHandler {
             for (ItemModel itemModel : items) {
                 if (descriptionModel.getClassid().equals(itemModel.getClassid())) {
                     descriptionModel.addOne();
-                    Log.d("DEBUG: ", String.valueOf(descriptionModel.getAmount()));
                 }
             }
         }
     }
 
-    private void fetchPricesForDescriptions(RequestQueue queue, ArrayList<DescriptionModel> descriptions, String steamID) {
+    private void fetchPricesForDescriptions(RequestQueue queue, ArrayList<DescriptionModel> descriptions, PortfolioModel portfolio) {
         Log.d("DEBUG: ", "Starting fetchPricesForDescriptions now");
 
         for (DescriptionModel descriptionModel : descriptions) {
@@ -188,6 +187,14 @@ public class PortfolioHandler {
                                             )
                                     );
                                 } catch (JSONException e) {
+                                    // Testing start
+                                    try {
+                                        Log.d("DEBUG", "Fetched for :" + descriptionModel.getItemName());
+                                        Log.d("JSON", response.toString(4));
+                                    } catch (JSONException jsonException) {
+                                        jsonException.printStackTrace();
+                                    }
+                                    // Testing end
                                     Toast.makeText(context, "Something with the data was wrong, retry or contact developer", Toast.LENGTH_LONG).show();
                                     e.printStackTrace();
                                 }
@@ -196,7 +203,14 @@ public class PortfolioHandler {
                                 Toast.makeText(context, ((descriptions.size() - descriptions.indexOf(descriptionModel)) * 4) + " secs estimated time left", Toast.LENGTH_SHORT).show();
 
                                 if (descriptionModel == descriptions.get(descriptions.size() - 1)) {
-                                    writeJsonToLocalFile(Objects.requireNonNull(createJsonFromData(descriptions)), steamID);
+                                    Collections.sort(descriptions);
+                                    portfolio.addSnapshot(
+                                            new SnapshotModel(
+                                                    filterNoGraffiti(filterNotMarketable(descriptions))
+                                            )
+                                    );
+
+                                    writeJsonToLocalFile(Objects.requireNonNull(createJsonFromData(portfolio)), portfolio);
                                 }
                             }
                         },
@@ -219,7 +233,6 @@ public class PortfolioHandler {
     }
 
     private void fetchPriceForMarketHashName(RequestQueue queue, VolleyCallback volleyCallback, String marketHashName) {
-
         String baseURL = "https://steamcommunity.com/market/priceoverview/?appid=730&currency=3&market_hash_name=";
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
@@ -229,7 +242,16 @@ public class PortfolioHandler {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        volleyCallback.onSuccess(response);
+                        // This check is needed, because for SOME FUCKING REASON, STEAM SOMETIMES FORGETS TO SEND SOME OF THE INFORMATION!!!!!!!! WTF?!
+                        if (
+                                response.toString().contains("lowest_price")
+                                && response.toString().contains("volume")
+                                && response.toString().contains("median_price")
+                        ) {
+                            volleyCallback.onSuccess(response);
+                        } else {
+                            fetchPriceForMarketHashName(queue, volleyCallback, marketHashName);
+                        }
                     }
                 },
                 new Response.ErrorListener() {
@@ -243,13 +265,22 @@ public class PortfolioHandler {
         queue.add(jsonObjectRequest);
     }
 
-    private void writeJsonToLocalFile(JSONObject jsonObject, String steamID) {
+    private void writeJsonToLocalFile(JSONObject jsonObject, PortfolioModel newPortfolio) {
         Log.d("DEBUG: ", "Starting writeJsonToLocalFile now");
 
-        String newFilename = ("portfolio_" + steamID + ".json").replace("/", "-");
+        if (isInventoryFilePresent(newPortfolio.getSteamID()) != null) {
+            Log.d("DEBUG", "Updating existing portfolio.");
+
+            // Portfolio from method parameters is just the new snapshot, the old snapshots need to be loaded, added and then saved in a file.
+            // updatePortfolio(newPortfolio.getFilename());
+            PortfolioModel oldPortfolio = loadPortfolio(newPortfolio.getFilename());
+            for (SnapshotModel snapshot : newPortfolio.getSnapshots()) {
+                oldPortfolio.addSnapshot(snapshot);
+            }
+        }
 
         try {
-            FileOutputStream fileOutputStream = context.openFileOutput(newFilename, Context.MODE_PRIVATE);
+            FileOutputStream fileOutputStream = context.openFileOutput(newPortfolio.getFilename(), Context.MODE_PRIVATE);
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
 
             outputStreamWriter.write(jsonObject.toString());
@@ -262,56 +293,75 @@ public class PortfolioHandler {
             e.printStackTrace();
         }
 
-        // TODO: Activity can be finished now.
-        ((Activity) context).finish();
+        // Reload activity, if the portfolio got updated; Finish, if it got created:
+        if (newPortfolio.getSnapshots().size() > 1) {
+            ((Activity) context).recreate();
+        } else {
+            ((Activity) context).finish();
+        }
     }
 
-    private JSONObject createJsonFromData(ArrayList<DescriptionModel> descriptions) {
+    private JSONObject createJsonFromData(PortfolioModel portfolio) {
         Log.d("DEBUG: ", "Starting createJsonFromData now");
 
-        // Creates a JSONObject with all descriptions and metadata.
-        MetaDataModel metadata = new MetaDataModel(LocalDateTime.now());
-
+        // Creates a JSONObject with a portfolio.
         try {
-            JSONObject JSONDescriptions = new JSONObject();
+            JSONObject JSONPortfolio = new JSONObject();
 
-            // Calculating current portfolio value:
-            for (DescriptionModel description : descriptions) {
-                metadata.addPortfolioValue(description.getLowestPrice().multiply(new BigDecimal(description.getAmount())));
+            for (SnapshotModel snapshot : portfolio.getSnapshots()) {
+                JSONObject JSONDescriptions = new JSONObject();
 
-                // Creating the JSONObject
-                JSONObject newDescription = new JSONObject()
-                        .put("classid", String.valueOf(description.getClassid()))
-                        .put("market_hash_name", description.getItemName())
-                        .put("lowest_price", description.getLowestPrice())
-                        .put("volume", description.getVolume())
-                        .put("median_price", description.getMedianPrice())
-                        .put("amount", description.getAmount());
-
-                if (description.isMarketable()) {
-                    newDescription.put("marketable", 1);
+                // Check if a snapshot is new and needs new metadata or if it's old and already has metadata:
+                MetaDataModel metaData;
+                boolean oldMetaData = false;
+                if (snapshot.getMetadata() != null) {
+                    metaData = snapshot.getMetadata();
+                    oldMetaData = true;
                 } else {
-                    newDescription.put("marketable", 0);
+                    metaData = new MetaDataModel(LocalDateTime.now(), portfolio.getSnapshots().indexOf(snapshot));
                 }
 
-                if (description.isTradable()) {
-                    newDescription.put("tradable", 1);
-                } else {
-                    newDescription.put("tradable", 0);
+                for (DescriptionModel description : snapshot.getDescriptions()) {
+                    if (!oldMetaData) {
+                        metaData.addSnapshotValue(description.getLowestPrice().multiply(new BigDecimal(description.getAmount())));
+                    }
+
+                    // Creating the JSONObject
+                    JSONObject newDescription = new JSONObject()
+                            .put("classid", String.valueOf(description.getClassid()))
+                            .put("market_hash_name", description.getItemName())
+                            .put("lowest_price", description.getLowestPrice())
+                            .put("volume", description.getVolume())
+                            .put("median_price", description.getMedianPrice())
+                            .put("amount", description.getAmount());
+
+                    if (description.isMarketable()) {
+                        newDescription.put("marketable", 1);
+                    } else {
+                        newDescription.put("marketable", 0);
+                    }
+
+                    if (description.isTradable()) {
+                        newDescription.put("tradable", 1);
+                    } else {
+                        newDescription.put("tradable", 0);
+                    }
+
+                    JSONDescriptions.put(String.valueOf(description.getClassid()), newDescription);
                 }
 
-                JSONDescriptions.put(String.valueOf(description.getClassid()), newDescription);
+                JSONObject JSONMetaData = new JSONObject()
+                        .put("snapshotValue", metaData.getSnapshotValue())
+                        .put("dateOfEntry", metaData.getDateOfEntry());
+
+                JSONObject JSONSnapshot = new JSONObject()
+                        .put("JSONDescriptions", JSONDescriptions)
+                        .put("MetaData", JSONMetaData);
+
+                JSONPortfolio.put(String.valueOf(portfolio.getSnapshots().indexOf(snapshot)), JSONSnapshot);
             }
 
-            JSONObject jsonMetadata = new JSONObject()
-                    .put("inventoryValue", metadata.getPortfolioValue())
-                    .put("dateOfEntry", metadata.getDateOfEntry());
-
-            JSONObject snapshot = new JSONObject()
-                    .put("metadata", jsonMetadata)
-                    .put("JSONDescriptions", JSONDescriptions);
-
-            return new JSONObject().put(String.valueOf(LocalDateTime.now()), snapshot);
+            return JSONPortfolio;
 
         } catch (JSONException e) {
             Toast.makeText(context, "Something went wrong while storing local data, retry or contact developer", Toast.LENGTH_LONG).show();
@@ -320,16 +370,16 @@ public class PortfolioHandler {
         }
     }
 
-    // Methods for reading saved .json and parsing for adapter:
-    public ArrayList<DescriptionModel> extractLastSnapshot(String filename) {
+    // Methods for reading saved .json:
+    public SnapshotModel loadSnapshots(String filename) {
         Log.d("DEBUG: ", "Starting extractLastInventoryHistoryEntryFromJsonFile now");
 
+        // TODO: Don't return descriptions, but a snapshot instead.
         // Finding the correct file:
         try {
             File[] files = context.getFilesDir().listFiles();
             for (File file : files) {
                 if (file.getName().equals(filename)) {
-                    File myFile = file;
 
                     // Getting ready to read:
                     FileInputStream fileInputStream = context.openFileInput(file.getName());
@@ -340,30 +390,37 @@ public class PortfolioHandler {
                     String fileToString = new String(inputBuffer);
 
                     // Extracting the first entry from the file with the help of keys-Iterator:
-                    JSONObject portfolio = new JSONObject(fileToString);
-                    Iterator<String> snapshots = portfolio.keys();
-                    JSONObject snapshot = portfolio.getJSONObject((String) snapshots.next());
+                    JSONObject JSONPortfolio = new JSONObject(fileToString);
+                    Iterator<String> snapshotKeys = JSONPortfolio.keys();
+                    JSONObject JSONSnapshot = JSONPortfolio.getJSONObject((String) snapshotKeys.next());
 
                     // Iterating through the descriptions and creating representing model instances:
                     ArrayList<DescriptionModel> descriptions = new ArrayList<>();
-                    JSONObject JSONDescriptions = snapshot.getJSONObject("JSONDescriptions");
+                    JSONObject JSONDescriptions = JSONSnapshot.getJSONObject("JSONDescriptions");
                     Iterator<String> descriptionKeys = JSONDescriptions.keys();
 
                     while (descriptionKeys.hasNext()) {
-                        JSONObject description = JSONDescriptions.getJSONObject((String) descriptionKeys.next());
+                        JSONObject JSONDescription = JSONDescriptions.getJSONObject((String) descriptionKeys.next());
                         descriptions.add(new DescriptionModel(
-                                BigInteger.valueOf(Long.parseLong(description.getString("classid"))),
-                                description.getString("market_hash_name"),
-                                description.getInt("marketable"),
-                                description.getInt("tradable"),
-                                BigDecimal.valueOf(Long.parseLong(String.valueOf(description.get("lowest_price")))),
-                                BigDecimal.valueOf(Long.parseLong(String.valueOf(description.get("median_price")))),
-                                BigInteger.valueOf(Long.parseLong(description.getString("volume"))),
-                                BigInteger.valueOf(Long.parseLong(description.getString("amount")))
+                                BigInteger.valueOf(Long.parseLong(JSONDescription.getString("classid"))),
+                                JSONDescription.getString("market_hash_name"),
+                                JSONDescription.getInt("marketable"),
+                                JSONDescription.getInt("tradable"),
+                                BigDecimal.valueOf(Long.parseLong(String.valueOf(JSONDescription.get("lowest_price")))),
+                                BigDecimal.valueOf(Long.parseLong(String.valueOf(JSONDescription.get("median_price")))),
+                                BigInteger.valueOf(Long.parseLong(JSONDescription.getString("volume"))),
+                                BigInteger.valueOf(Long.parseLong(JSONDescription.getString("amount")))
                         ));
                     }
 
-                    return filterNotMarketable(descriptions);
+                    // Extracting MetaData:
+                    JSONObject JSONMetaData = JSONSnapshot.getJSONObject("MetaData");
+                    MetaDataModel metaData = new MetaDataModel(LocalDateTime.parse(JSONMetaData.getString("dateOfEntry")), -1);
+                    metaData.setSnapshotValue(new BigDecimal(JSONMetaData.getString("snapshotValue")));
+                    SnapshotModel snapshot = new SnapshotModel(filterNoGraffiti(filterNotMarketable(descriptions)));
+                    snapshot.setMetadata(metaData);
+
+                    return snapshot;
                 }
             }
         } catch (IOException | JSONException e) {
@@ -375,25 +432,32 @@ public class PortfolioHandler {
     }
 
     private ArrayList<DescriptionModel> filterNotMarketable(ArrayList<DescriptionModel> descriptions) {
-        // Didn't write this, but it is supposed to delete all non-marketable descriptions:
+        // Didn't write it like this, but it is supposed to delete all non-marketable descriptions:
         descriptions.removeIf(description -> !description.isMarketable());
-
         return descriptions;
     }
 
-    // Unused methods:
-    public PortfolioModel extractInventoryHistoryFromJsonFile(String filename) {
+    private ArrayList<DescriptionModel> filterNoGraffiti(ArrayList<DescriptionModel> descriptions) {
+        for (DescriptionModel description : descriptions) {
+            if (description.getItemName().contains("Sealed") && description.getItemName().contains("Graffiti")) {
+                Log.d("Removing", description.getItemName());
+                descriptions.remove(description);
+            }
+        }
+        return descriptions;
+    }
 
-        Log.d("DEBUG: ", "Starting extractInventoryHistoryFromJsonFile now");
+    // Methods for reading saved .json and updating it:
+    public PortfolioModel loadPortfolio(String filename) {
+        Log.d("DEBUG", "Starting loadPortfolio now");
 
-        // Opening the local inventory history file:
+        // Getting the file:
         try {
             File[] files = context.getFilesDir().listFiles();
-            // Search for the correct file:
             for (File file : files) {
                 if (file.getName().equals(filename)) {
-                    File myFile = file;
 
+                    // Getting ready to read:
                     FileInputStream fileInputStream = context.openFileInput(file.getName());
                     int size = fileInputStream.available();
                     char[] inputBuffer = new char[size];
@@ -401,80 +465,58 @@ public class PortfolioHandler {
                     inputStreamReader.read(inputBuffer);
                     String fileToString = new String(inputBuffer);
 
-                    // Extracting data from the local file:
-                    JSONObject inventoryHistory = new JSONObject(fileToString);
-                    Iterator<String> inventoryEntryKeys = inventoryHistory.keys();
+                    // Convert from String to JSONObjects to DataModels:
+                    PortfolioModel portfolio = new PortfolioModel(filename
+                            .replace("portfolio_", "")
+                            .replace("-", "/")
+                            .replace(".json", "")
+                    );
+                    JSONObject JSONPortfolio = new JSONObject(fileToString);
+                    Iterator<String> snapshotKeys = JSONPortfolio.keys();
 
-                    PortfolioModel newInventory = new PortfolioModel();
-                    while (inventoryEntryKeys.hasNext()) {
-                        JSONObject inventoryEntryJson = inventoryHistory.getJSONObject( (String) inventoryEntryKeys.next());
+                    // Iterating over all snapshots:
+                    while (snapshotKeys.hasNext()) {
+                        String nextSnapshotKey = snapshotKeys.next();
+                        JSONObject JSONSnapshot = JSONPortfolio.getJSONObject(nextSnapshotKey);
 
-                        ArrayList<ItemModel> itemModels = new ArrayList<>();
-                        ArrayList<DescriptionModel> descriptionModels = new ArrayList<>();
+                        // Converting MetaData:
+                        JSONObject JSONMetaData = JSONSnapshot.getJSONObject("MetaData");
+                        MetaDataModel metaData = new MetaDataModel(LocalDateTime.parse(JSONMetaData.getString("dateOfEntry")), Integer.parseInt(nextSnapshotKey));
+                        metaData.setSnapshotValue(new BigDecimal(JSONMetaData.getString("snapshotValue")));
 
-                        // Getting all items:
-                        JSONObject rgInventory = inventoryEntryJson.getJSONObject("rgInventory");
-                        Iterator<String> rgInventoryKeys = rgInventory.keys();
+                        // Converting Descriptions:
+                        ArrayList<DescriptionModel> descriptions = new ArrayList<>();
+                        JSONObject JSONDescriptions = JSONSnapshot.getJSONObject("JSONDescriptions");
+                        Iterator<String> descriptionKeys = JSONDescriptions.keys();
 
-                        // Going through all items:
-                        while (rgInventoryKeys.hasNext()) {
-                            JSONObject newItem = rgInventory.getJSONObject((String) rgInventoryKeys.next());
-                            itemModels.add(new ItemModel(
-                                    BigInteger.valueOf(Long.parseLong(newItem.getString("classid"))),
-                                    BigInteger.valueOf(Long.parseLong(newItem.getString("id")))
+                        // Iterating over all descriptions of current snapshot:
+                        while (descriptionKeys.hasNext()) {
+                            String nextDescriptionKey = descriptionKeys.next();
+                            JSONObject JSONDescription = JSONDescriptions.getJSONObject(nextDescriptionKey);
+                            descriptions.add(new DescriptionModel(
+                                    BigInteger.valueOf(Long.parseLong(JSONDescription.getString("classid"))),
+                                    JSONDescription.getString("market_hash_name"),
+                                    JSONDescription.getInt("marketable"),
+                                    JSONDescription.getInt("tradable"),
+                                    BigDecimal.valueOf(Long.parseLong(String.valueOf(JSONDescription.get("lowest_price")))),
+                                    BigDecimal.valueOf(Long.parseLong(String.valueOf(JSONDescription.get("median_price")))),
+                                    BigInteger.valueOf(Long.parseLong(JSONDescription.getString("volume"))),
+                                    BigInteger.valueOf(Long.parseLong(JSONDescription.getString("amount")))
                             ));
                         }
 
-                        // Getting all descriptions:
-                        JSONObject rgDescriptions = inventoryEntryJson.getJSONObject("rgDescriptions");
-                        Iterator<String> rgDescriptionsKeys = rgDescriptions.keys();
-
-                        while (rgDescriptionsKeys.hasNext()) {
-                            JSONObject newDescription = rgDescriptions.getJSONObject((String) rgDescriptionsKeys.next());
-                            descriptionModels.add(new DescriptionModel(
-                                    BigInteger.valueOf(Long.parseLong(newDescription.getString("classid"))),
-                                    newDescription.getString("market_hash_name"),
-                                    newDescription.getInt("marketable"),
-                                    newDescription.getInt("tradable"),
-                                    BigDecimal.valueOf(Long.parseLong(String.valueOf(newDescription.get("lowest_price")))),
-                                    BigDecimal.valueOf(Long.parseLong(String.valueOf(newDescription.get("median_price")))),
-                                    BigInteger.valueOf(Long.parseLong(newDescription.getString("volume")))
-                            ));
-                        }
-
-                        // Matching items with their description:
-                        matchItemsAndDescriptions(descriptionModels, itemModels);
-
-                        SnapshotModel newEntry = new SnapshotModel(itemModels);
-                        newInventory.addEntry(newEntry);
+                        // Building Snapshot:
+                        SnapshotModel snapshot = new SnapshotModel(descriptions);
+                        snapshot.setMetadata(metaData);
+                        portfolio.addSnapshot(snapshot);
                     }
-
-                    return newInventory;
+                    return portfolio;
                 }
             }
         } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
-
         return null;
-    }
-
-    public void updatePortfolio(String filename) {
-        // TODO: Test the implementation:
-        // TODO: Implement the following steps:
-        // Use filename to open local json and load all previous entries into InventoryModel.
-        //PortfolioModel portfolioModel = extractInventoryHistoryFromJsonFile(filename);
-        // Use the steamLink to get json for new entry.
-        // TODO: Refactor the way we fetch data from steam.
-        //JSONObject newEntry;
-        // Create new InventoryEntryModel from new json.
-        // TODO: Refactor the way we create JSONObjects.
-        //SnapshotModel snapshotModel = null;
-        // Add new InventoryEntryModel to existing InventoryModel.
-        //portfolioModel.addEntry(snapshotModel);
-        // Convert existing InventoryModel into json.
-        // TODO: Refactor the way we create JSONObjects.
-        // Write json to local file.
     }
 
     // I hate this method:

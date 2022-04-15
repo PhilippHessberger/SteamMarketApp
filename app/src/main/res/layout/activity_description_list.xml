@@ -22,7 +22,7 @@
         android:id="@+id/inventoryDetailsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/elements"
+        android:backgroundTint="@color/element"
         android:text="Button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

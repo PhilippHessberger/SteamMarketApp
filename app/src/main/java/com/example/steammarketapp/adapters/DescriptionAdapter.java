@@ -1,7 +1,6 @@
 package com.example.steammarketapp.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +31,7 @@ public class DescriptionAdapter extends RecyclerView.Adapter<DescriptionAdapter.
     @NonNull
     @Override
     public DescriptionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = layoutInflater.inflate(R.layout.item_cardview, parent, false);
+        View view = layoutInflater.inflate(R.layout.cardview_item, parent, false);
         return new DescriptionViewHolder(view);
     }
 
@@ -81,7 +80,7 @@ public class DescriptionAdapter extends RecyclerView.Adapter<DescriptionAdapter.
         }
 
         private String calcTotalPrice(BigInteger amount, BigDecimal price) {
-            // Multiplying AND formatting:
+            // It is multiplying AND formatting:
             return new BigDecimal(amount).multiply(price).movePointLeft(2).toString();
         }
     }

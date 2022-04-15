@@ -4,9 +4,29 @@ import java.util.ArrayList;
 
 public class PortfolioModel {
 
-    private ArrayList<SnapshotModel> inventoryHistory;
+    private ArrayList<SnapshotModel> snapshots;
 
-    public void addEntry(SnapshotModel inventoryModel) {
-        inventoryHistory.add(inventoryModel);
+    private final String steamID, filename;
+
+    public PortfolioModel(String steamID) {
+        this.filename = "portfolio_" + steamID.replace("/", "-") + ".json";
+        this.snapshots = new ArrayList<>();
+        this.steamID = steamID;
+    }
+
+    public void addSnapshot(SnapshotModel snapshot) {
+        snapshots.add(snapshot);
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public String getSteamID() {
+        return steamID;
+    }
+
+    public ArrayList<SnapshotModel> getSnapshots() {
+        return snapshots;
     }
 }
