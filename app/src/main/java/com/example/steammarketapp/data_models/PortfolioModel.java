@@ -14,8 +14,8 @@ public class PortfolioModel {
         this.steamID = steamID;
     }
 
-    public void addSnapshot(SnapshotModel inventoryModel) {
-        snapshots.add(inventoryModel);
+    public void addSnapshot(SnapshotModel snapshot) {
+        snapshots.add(snapshot);
     }
 
     public String getFilename() {

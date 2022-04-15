@@ -49,7 +49,7 @@ public class SnapshotAdapter extends RecyclerView.Adapter<SnapshotAdapter.Snapsh
 
     public class SnapshotViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private final TextView textViewSnapshotIndexValue;
+        private final TextView textViewSnapshotDateValue;
         private final TextView textViewSnapshotValueValue;
 
         ConstraintLayout constraintLayout;
@@ -60,13 +60,13 @@ public class SnapshotAdapter extends RecyclerView.Adapter<SnapshotAdapter.Snapsh
         public SnapshotViewHolder(@NonNull View itemView) {
             super(itemView);
             constraintLayout            = (ConstraintLayout) itemView.findViewById(R.id.layoutSnapshotCardview);
-            textViewSnapshotIndexValue  = (TextView) itemView.findViewById(R.id.textViewSnapshotIndexValue);
+            textViewSnapshotDateValue   = (TextView) itemView.findViewById(R.id.textViewSnapshotDateValue);
             textViewSnapshotValueValue  = (TextView) itemView.findViewById(R.id.textViewSnapshotValueValue);
         }
 
         public void setData(SnapshotModel currentObject, int position) {
             // TODO: Write index to MetaData in PortfolioHandler!
-            this.textViewSnapshotIndexValue.setText(String.valueOf(currentObject.getMetadata().getSnapshotIndex()));
+            this.textViewSnapshotDateValue.setText(String.valueOf(currentObject.getMetadata().getDateOfEntry()));
             this.textViewSnapshotValueValue.setText(String.valueOf(currentObject.getMetadata().getSnapshotValue()));
 
             this.position = position;

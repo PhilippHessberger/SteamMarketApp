@@ -187,6 +187,14 @@ public class PortfolioHandler {
                                             )
                                     );
                                 } catch (JSONException e) {
+                                    // Testing start
+                                    try {
+                                        Log.d("DEBUG", "Fetched for :" + descriptionModel.getItemName());
+                                        Log.d("JSON", response.toString(4));
+                                    } catch (JSONException jsonException) {
+                                        jsonException.printStackTrace();
+                                    }
+                                    // Testing end
                                     Toast.makeText(context, "Something with the data was wrong, retry or contact developer", Toast.LENGTH_LONG).show();
                                     e.printStackTrace();
                                 }
@@ -198,7 +206,7 @@ public class PortfolioHandler {
                                     Collections.sort(descriptions);
                                     portfolio.addSnapshot(
                                             new SnapshotModel(
-                                                    filterNotMarketable(descriptions)
+                                                    filterNoGraffiti(filterNotMarketable(descriptions))
                                             )
                                     );
 
@@ -225,7 +233,6 @@ public class PortfolioHandler {
     }
 
     private void fetchPriceForMarketHashName(RequestQueue queue, VolleyCallback volleyCallback, String marketHashName) {
-
         String baseURL = "https://steamcommunity.com/market/priceoverview/?appid=730&currency=3&market_hash_name=";
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
@@ -235,7 +242,16 @@ public class PortfolioHandler {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        volleyCallback.onSuccess(response);
+                        // This check is needed, because for SOME FUCKING REASON, STEAM SOMETIMES FORGETS TO SEND SOME OF THE INFORMATION!!!!!!!! WTF?!
+                        if (
+                                response.toString().contains("lowest_price")
+                                && response.toString().contains("volume")
+                                && response.toString().contains("median_price")
+                        ) {
+                            volleyCallback.onSuccess(response);
+                        } else {
+                            fetchPriceForMarketHashName(queue, volleyCallback, marketHashName);
+                        }
                     }
                 },
                 new Response.ErrorListener() {
@@ -295,10 +311,20 @@ public class PortfolioHandler {
             for (SnapshotModel snapshot : portfolio.getSnapshots()) {
                 JSONObject JSONDescriptions = new JSONObject();
 
-                MetaDataModel metaData = new MetaDataModel(LocalDateTime.now(), portfolio.getSnapshots().indexOf(snapshot));
+                // Check if a snapshot is new and needs new metadata or if it's old and already has metadata:
+                MetaDataModel metaData;
+                boolean oldMetaData = false;
+                if (snapshot.getMetadata() != null) {
+                    metaData = snapshot.getMetadata();
+                    oldMetaData = true;
+                } else {
+                    metaData = new MetaDataModel(LocalDateTime.now(), portfolio.getSnapshots().indexOf(snapshot));
+                }
 
                 for (DescriptionModel description : snapshot.getDescriptions()) {
-                    metaData.addSnapshotValue(description.getLowestPrice().multiply(new BigDecimal(description.getAmount())));
+                    if (!oldMetaData) {
+                        metaData.addSnapshotValue(description.getLowestPrice().multiply(new BigDecimal(description.getAmount())));
+                    }
 
                     // Creating the JSONObject
                     JSONObject newDescription = new JSONObject()
@@ -344,7 +370,7 @@ public class PortfolioHandler {
         }
     }
 
-    // Methods for reading saved .json and parsing for adapter:
+    // Methods for reading saved .json:
     public SnapshotModel loadSnapshots(String filename) {
         Log.d("DEBUG: ", "Starting extractLastInventoryHistoryEntryFromJsonFile now");
 
@@ -391,7 +417,7 @@ public class PortfolioHandler {
                     JSONObject JSONMetaData = JSONSnapshot.getJSONObject("MetaData");
                     MetaDataModel metaData = new MetaDataModel(LocalDateTime.parse(JSONMetaData.getString("dateOfEntry")), -1);
                     metaData.setSnapshotValue(new BigDecimal(JSONMetaData.getString("snapshotValue")));
-                    SnapshotModel snapshot = new SnapshotModel(filterNotMarketable(descriptions));
+                    SnapshotModel snapshot = new SnapshotModel(filterNoGraffiti(filterNotMarketable(descriptions)));
                     snapshot.setMetadata(metaData);
 
                     return snapshot;
@@ -408,6 +434,16 @@ public class PortfolioHandler {
     private ArrayList<DescriptionModel> filterNotMarketable(ArrayList<DescriptionModel> descriptions) {
         // Didn't write it like this, but it is supposed to delete all non-marketable descriptions:
         descriptions.removeIf(description -> !description.isMarketable());
+        return descriptions;
+    }
+
+    private ArrayList<DescriptionModel> filterNoGraffiti(ArrayList<DescriptionModel> descriptions) {
+        for (DescriptionModel description : descriptions) {
+            if (description.getItemName().contains("Sealed") && description.getItemName().contains("Graffiti")) {
+                Log.d("Removing", description.getItemName());
+                descriptions.remove(description);
+            }
+        }
         return descriptions;
     }
 
@@ -441,7 +477,6 @@ public class PortfolioHandler {
                     // Iterating over all snapshots:
                     while (snapshotKeys.hasNext()) {
                         String nextSnapshotKey = snapshotKeys.next();
-                        Log.d("DEBUG", "Snapshot Key: " + nextSnapshotKey);
                         JSONObject JSONSnapshot = JSONPortfolio.getJSONObject(nextSnapshotKey);
 
                         // Converting MetaData:
@@ -457,7 +492,6 @@ public class PortfolioHandler {
                         // Iterating over all descriptions of current snapshot:
                         while (descriptionKeys.hasNext()) {
                             String nextDescriptionKey = descriptionKeys.next();
-                            Log.d("DEBUG", "Description Key: " + nextDescriptionKey);
                             JSONObject JSONDescription = JSONDescriptions.getJSONObject(nextDescriptionKey);
                             descriptions.add(new DescriptionModel(
                                     BigInteger.valueOf(Long.parseLong(JSONDescription.getString("classid"))),
